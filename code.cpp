@@ -60,11 +60,12 @@ void quick_sort(FwdIt first, FwdIt last, Compare cmp = Compare{})
     quick_sort(middle2, last, cmp);  // assert(std::is_sorted(middle2, last, cmp));
 }
 
-归并排序
 
-如果不考虑的空间占用，归并排序是极好的算法：因为它是唯一的稳定的算法。
-
-实现上也很简单：找到输入列表的中间点，然后对两边分别执行归并排序。最后使用 std::inplace_merge 将两个部分合并。
+/* 归并排序算法：
+* （1）思想是对数组对半分，直到拆成一个元素直接返回，然后使用merge合并；
+*     ----》此处用的是std::inplace_merge，与merge的区别是，merge是两个不相关的数组合并到一个新的迭代器中，就地合并的话则是合并同一数组中的元素，只有三个参数，分别是first,middle,last；
+*     ----》实现上，就地排序使用的是额外空间拷贝然后调用merge。
+*/
 
 template<class BiDirIt, class Compare = std::less<>>
 void merge_sort(BiDirIt first, BiDirIt last, Compare cmp = Compare{})
@@ -76,13 +77,13 @@ void merge_sort(BiDirIt first, BiDirIt last, Compare cmp = Compare{})
     merge_sort(middle, last, cmp);  // assert(std::is_sorted(middle, last, cmp));
     std::inplace_merge(first, middle, last, cmp); // assert(std::is_sorted(first, last, cmp));
 }
-归并排序需要双向迭代器，因为 std::inplace_merge 需要它。注意，当对链表进行排序时，归并排序只需要 O(log N) extra的额外空间（来执行递归）。
 
-堆排序
 
-堆排序很容易实现。它是一个的原地排序法，但是它不稳定。
-
-首先，我们将一个数组「堆化」。然后，我们不断的执行这么一个动作：将根元素和最后的元素交换，然后「向下沉」来重整堆序。有了标准模板库，生活变得如此容易：
+/* 堆排序算法
+* （1）学过heap算法，堆排序很简单，两行代码就可以，第一步make_heap，第二步sort_heap；
+* （2）实现make_heap，可以使用push_heap算法，这个算法会将输入容器的最后一个元素当做待插入元素，调整为堆；
+* （3）实现sort_heap，可以使用pop_heap算法，每次调用完，就会将最大值保存到容器的最后一个元素。
+*/
 
 template<class RandomIt, class Compare = std::less<>>
 void heap_sort(RandomIt first, RandomIt last, Compare cmp = Compare{})
@@ -90,7 +91,7 @@ void heap_sort(RandomIt first, RandomIt last, Compare cmp = Compare{})
     lib::make_heap(first, last, cmp); // assert(std::is_heap(first, last, cmp));
     lib::sort_heap(first, last, cmp); // assert(std::is_sorted(first, last, cmp));
 }
-为了防止你说我作弊，我自己实现了std中的make_heap和sort_heap。
+//为了防止你说我作弊，我自己实现了std中的make_heap和sort_heap。
 
 namespace lib {
 
@@ -114,4 +115,3 @@ void sort_heap(RandomIt first, RandomIt last, Compare cmp = Compare{})
 }
 
 }   // namespace lib
-标准模板库的 push_heap 和 pop_heap 的复杂度都是 O(log N)。注意到在 [first, last) 上循环，导致了 make_heap 的复杂度变为 O(N log N) ，而非 std::make_heap 的only O(N) 。不过，总体的复杂度仍然是，这无关紧要。
