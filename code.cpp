@@ -25,6 +25,7 @@ void selection_sort(FwdIt first, FwdIt last, Compare cmp = Compare{})
 * （2）找到插入位置，插入的话可以使用旋转操作：std::rotate;
 *     ----》std::rotate也可以理解为交换两部分迭代器中的内容，参数分别是first,middle,last；
 *     ----》迭代器实现加减法运算需要使用：std::next(Iter, n)；来实现；
+* （3）使用rotate可以，也可以直接使用copy_backward函数（最后一个参数是end()），只不过此时多了一行代码；
 */
 template<class FwdIt, class Compare = std::less<>>
 void insertion_sort(FwdIt first, FwdIt last, Compare cmp = Compare{})
