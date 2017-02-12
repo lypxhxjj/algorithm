@@ -1,68 +1,110 @@
-快速排序是必须理解的。
+一   快速排序理解
 1  快速排序最大的优点是就地排序，除了较小的辅助栈，不会占用其他空间；（当然还有对随机数据排序效果好）
-2  必须从右边开始找，可能直接到头，如果不到头，j会碰上已交换过得i，i会碰上未交换过的j，所以不论哪个到头了，交叉点不小于切割元素的值，都可以和切分元素相交换；
-3  使用交换的方法，比使用填坑的方法少了一行代码，但是多了一个赋值操作；（数据量很大的情况下，使用填坑的办法好些）
-4  左右寻找的过程中遇到相等的元素也要交换，原因是这样是为了尽量将该元素的最终位置定位到中间去；
+2  左右寻找的过程中遇到相等的元素也要交换，原因是这样是为了尽量将该元素的最终位置定位到中间去；
+3  两个指针i和j，可以先从头开始寻找，也可以从后开始寻找。两个指针i和j，凡是i走过的地方，必不大于切分元素；凡是j走过的地方，必不小于切分元素。
+4  （i和j安全走过一轮之后，就不会发生越界了。见下面的边界检查部分）两个指针相遇或者交叉，发生的情况是：二者要么恰好相等的时候停止，要么相差最多是1；
+（前者是遇到相同元素了）
+5  填坑法不一定好用，可能其比交换好一些，但是其使用范围必须是首位元素作为切分元素，因为i赋值给j，j赋值给i，但是如果不是首位的话，第一步赋值就没有办法
+实现。而三取样切分中不能保证首位元素是切分元素；
 
-快速排序实现时可能出现的问题：
-1  可以使用到的技巧是：（1）while + 前置++；
-2  错误点在于比较的过程中，需要使用保存的临时值，而不是总是a[0]；
+二   快速排序实现时可能出现的问题：
+1  在用于于比较的数据中，需要使用保存的临时值tmp，而不是总是a[0]；
+2  begin和end，在走的时候如果发生交叉，那么最后使用tmp赋值的应该是第二轮寻找的那个中去；（见上面第4点）
 
-快速排序的优化：
-1  使用填坑法，而不是交换法；
-2  去除边界检查：
-3  三取样切分；
-4  一定数量之后切换到插入排序；
-5  自我检测是否有恶化的趋向；
+三   快速排序的优化：
+1  去除边界检查：
+2  三取样切分；
+3  一定数量之后切换到插入排序；
+4  自我检测是否有恶化的趋向；
 
 分别介绍：
-1  去除边界检查，首先，从右向左寻找，由于第一个元素或者i所在位置（i位置要么代表第一个元素，要么代表已被交换的比切分值小的元素），所以j最差就是到i所在位置就停止了；
-i从左向右寻找的话，如果不要边界值，也要在右边设置一个边界值，这个值必须比切分值不小；（大于等于）
-采取的方案是：三取样边界检查的时候，不仅仅找到中间值，还将中间值交换到第一个元素，还将最大值交换到最后一个元素：代码如下：
-template<class Iter>
-void median(Iter a, Iter b, Iter c) {
-    auto max_element = std::max(*a, *b, *c);
-    auto min_element = std::min(a, b, c);
-    auto mid = *a + *b + *c - max_element - min_element;
-    std::swap(*a, mid);
-    std::swap(*b, min_element);
-    std::swap(*c, max_element);
-}
-经过这个函数之后，三样切分完成了，去除边界检查的操作也完成了；
-
-2  一定数量之后插入到插入排序：插入排序的算法可以见那三行代码；递归前先检查元素数目在[5,20]之间都可以调用插入排序了，stl用的临界值是16；
-
-3  自我检测是否有恶化的趋向：可以实现一个2^k个数据以内的话，就按2*k作为栈的最大深度，如果递归的过程中超过了这个深度，就调用std::partial_sort(begin,middle,end)来进行排序，而不再递归；
-std::partial_sort实现的原理是堆排序，将[begin, middle)内顺序装满整个数组的最小的几个，实现步骤是，先将原数组这个区间内的数据make_heap一下，调整为一个堆，然后遍历[middle,end)中的元
-素和前面堆的最大值比，如果比最大值小，说明该往前换，换完之后就重新调整堆，最后调整完了，就使用sort_heap将这个数组排序一下；
-
-最终的代码是：
+1  去除边界检查，
+原理：两个指针i和j，凡是i走过的地方，必不大于切分元素；凡是j走过的地方，必不小于切分元素。前提是必须走过，只要双方都走过，那么就必然不会发生越界，为
+防止越界只要保证i和j安全走过第一轮；
+解释：走过第一轮之后，i及i前面的都是不大于切分元素的值，都是j的停止条件；相反，j也一样；
+方案：只要i从第一个元素开始，j从最后一个元素开始，就必然可以安全走过第一轮，因为最差也就是在切分元素那相遇。
+遗憾的地方是：由于begin()和end()的不对称性，导致不能使用while + 前置++方法；
+代码如下：
 template<class Iter>
 void quick_sort3(Iter it1, Iter it2) {
     auto size = std::distance(it1, it2);
     if (size <= 1) return;
     
-    median(it1, std::next(it1, size / 2), std::prev(it2));
+    auto tmp = median(*it1, *std::next(it1, size / 2), *std::prev(it2));
     
     Iter begin = it1;
     Iter end = it2;
-    auto tmp = *it1;
     while (begin < end) {
+        while (*begin < tmp) ++begin;
         while (*--end > tmp);
-        *begin = *end;
-        while (*++begin < tmp);
-        *end = *begin;
+        if (begin < end) std::iter_swap(begin, end);
+        ++begin;
     }
     
-    *begin = tmp;
-    quick_sort(it1, begin);
-    quick_sort(begin + 1, it2);
-    
+    *end = tmp;
+    quick_sort3(it1, end);
+    quick_sort3(std::next(end), it2);
 }
 
-最后针对重复元素做出的特殊考虑：
+2  三取样切分只要找到mid就可以了，所以简洁实现如下（可能不是最好的方案，但是简洁）：
+template<class T>
+T median(const T& a, const T& b, const T& c) {
+    T max_element = std::max(std::max(a, b), c);
+    T min_element = std::min(std::min(a, b), c);
+    return a + b + c - max_element - min_element;
+}
+
+3  一定数量之后插入到插入排序：插入排序的算法可以见那三行代码；递归前先检查元素数目在[5,20]之间都可以调用插入排序了，stl用的临界值是16；
+
+4  自我检测是否有恶化的趋向：可以实现一个2^k个数据以内的话，就按2*k作为栈的最大深度，如果递归的过程中超过了这个深度，就调用
+std::partial_sort(begin,middle,end)来进行排序，而不再递归；
+std::partial_sort实现的原理是堆排序，将[begin, middle)内顺序装满整个数组的最小的几个，实现步骤是，先将原数组这个区间内的数据make_heap一下，
+调整为一个堆，然后遍历[middle,end)中的元素和前面堆的最大值比，如果比最大值小，说明该往前换，换完之后就重新调整堆，最后调整完了，就使用sort_heap
+将这个数组排序一下；
+
+
+四   最后针对重复元素做出的特殊考虑：
 1  重复元素很多的情况下，使用这个上面的快速排序算法不会变差，但是也不会更好。（如果交换的话，甚至会发生许多交换，速度变慢）
 2  可以重新设计一个快速排序算法，来专门处理多重复数据。
-三向切分算法：每次递归都会遍历一遍数组元素，遍历完成之后，效果是：比切分元素小，切分元素，比切分元素大；（实现上三个指针，如果发现比切分元素小，就交换到最前边，如果比切分元素大，就交换到最后边，
-分别相应的调整指针就好了）
-类似于
+三向切分算法：每次递归都会遍历一遍数组元素，遍历完成之后，效果是：比切分元素小，切分元素，比切分元素大；
+实现上：
+（1）三个指针，第一个指针指向的是切分元素，第二个指针从切分元素的下一位置开始向后遍历，
+----》如果与切分元素相等，什么都不做，让切分元素分布在这两个指针中间，
+----》如果比切分元素小的话，就和第一个指针指向的切分元素交换，即插入到比切分元素小的最后一个位置上去；
+----》如果比切分元素大的话，就和第三个指针指向的末尾元素交换，交换后重新分析；
+（2）跳出循环的条件是：第一个指针和第三个指针相遇；
+
+代码1：只不过这段代码比较简洁，而且多遍历了一半元素：
+template<class FwdIt, class Compare = std::less<>>
+void quick_sort(FwdIt first, FwdIt last, Compare cmp = Compare{})
+{
+    auto const N = std::distance(first, last);
+    if (N <= 1) return;
+    auto const pivot = *std::next(first, N / 2);
+    auto const middle1 = std::partition(first, last, [=](auto const& elem){ 
+        return cmp(elem, pivot); 
+    });
+    auto const middle2 = std::partition(middle1, last, [=](auto const& elem){ 
+        return !cmp(pivot, elem);
+    });
+    quick_sort(first, middle1, cmp); // assert(std::is_sorted(first, middle1, cmp));
+    quick_sort(middle2, last, cmp);  // assert(std::is_sorted(middle2, last, cmp));
+}
+代码2：
+template<class Iter>
+void quick_sort4(Iter it1,Iter it2) {
+    auto size = std::distance(it1, it2);
+    if (size <= 1) return;
+    
+    auto tmp = *it1;
+    Iter p1 = it1;
+    Iter p2 = it1 + 1;
+    Iter p3 = it2;
+    while (p2 < p3) {
+        if (*p2 < tmp) std::iter_swap(p1++, p2++);
+        else if(*p2 > tmp) std::iter_swap(p2, --p3);
+        else ++p2;
+    }
+    quick_sort4(it1, p1);
+    quick_sort4(p2, it2);
+}
