@@ -33,3 +33,27 @@ void insert_sort1(Iter it1, Iter it2) {
         linear_insert(it1, it, it);
     }
 }
+
+/* 技巧2：如何使用前置++和while循环搭配
+*  前置++效率比后置++要高，所以使用上尽可能地使用前置++，然后合适的搭配while循环可以使得代码行数减少，比如省掉单独的++操作；
+*  使用方法：在初始化变量时，有意的声明当前位置的前一个位置的（++），或者当前位置的后一个位置的（--）；
+*/
+
+template<class Iter>
+void quick_sort(Iter it1, Iter it2) {
+    auto size = std::distance(it1, it2);
+    if (size < 2) return;
+    
+    Iter begin = it1;
+    Iter end = it2;
+    auto tmp = *it1;
+    while (begin < end) {
+        while (*--end > tmp );  //没有必要使用边界判断，因为*begin肯定是等于的；
+        *begin = *end;
+        while (begin < end && *++begin < tmp);
+        *end = *begin;
+    }
+    *begin = tmp;
+    quick_sort(it1, begin);
+    quick_sort(begin + 1, it2);
+}
