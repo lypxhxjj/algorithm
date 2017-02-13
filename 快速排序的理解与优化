@@ -5,10 +5,10 @@
 4  （i和j安全走过一轮之后，就不会发生越界了。见下面的边界检查部分）两个指针相遇或者交叉，发生的情况是：二者要么恰好相等的时候停止，要么相差最多是1；
 （前者是遇到相同元素了）
 5  填坑法不一定好用，可能其比交换好一些，但是其使用范围必须是首位元素作为切分元素，因为i赋值给j，j赋值给i，但是如果不是首位的话，第一步赋值就没有办法
-实现。而三取样切分中不能保证首位元素是切分元素；
+实现。不同的实现可能采取的切分元素位置不同；
 
 二   快速排序实现时可能出现的问题：
-1  在用于于比较的数据中，需要使用保存的临时值tmp，而不是总是a[0]；
+1  第一个数据用做切分元素的话，在下面的三取样切分后，就不必使用临时值了，因为遍历交换的过程中，不会碰到第一个元素；
 2  begin和end，在走的时候如果发生交叉，那么最后使用tmp赋值的应该是第二轮寻找的那个中去；（见上面第4点）
 
 三   快速排序的优化：
@@ -19,51 +19,66 @@
 
 分别介绍：
 1  去除边界检查，
-原理：两个指针i和j，凡是i走过的地方，必不大于切分元素；凡是j走过的地方，必不小于切分元素。前提是必须走过，只要双方都走过，那么就必然不会发生越界，为
+----》原理：两个指针i和j，凡是i走过的地方，必不大于切分元素；凡是j走过的地方，必不小于切分元素。前提是必须走过，只要双方都走过，那么就必然不会发生越界，为
 防止越界只要保证i和j安全走过第一轮；
-解释：走过第一轮之后，i及i前面的都是不大于切分元素的值，都是j的停止条件；相反，j也一样；
-方案：只要i从第一个元素开始，j从最后一个元素开始，就必然可以安全走过第一轮，因为最差也就是在切分元素那相遇。
-遗憾的地方是：由于begin()和end()的不对称性，导致不能使用while + 前置++方法；
-代码如下：
+----》解释：走过第一轮之后，i及i前面的都是不大于切分元素的值，都是j的停止条件；相反，j也一样；
+----》方案：
+（1）只要i从第一个元素开始，j从最后一个元素开始，就必然可以安全走过第一轮，因为最差也就是在切分元素那相遇。但此时实现方案不可行。（见下面的partition设计）
+（2）在数组的尾部也设置一个哨兵，保证最后一个元素不小于切分元素，这样前向和后项遍历就都有保证了，无需再使用边界检查；（可以在三取样切分中既找到切分元素，
+又设置最后的元素）
+----》三取样切分代码如下：
+template<class Iter>
+void median(Iter a, Iter b, Iter c) {
+    typedef typename Iter::value_type T;
+    if (b == c) {
+        if (*a > *b) std::swap(*a, *b);
+        return;
+    }
+    T max_element = std::max(std::max(*a, *b), *c);
+    T min_element = std::min(std::min(*a, *b), *c);
+    T mid = *a + *b + *c - max_element - min_element;
+    std::swap(*a, mid);
+    std::swap(*b, min_element);
+    std::swap(*c, max_element);
+}
+最后无需边界检查的快速排序代码如下：
 template<class Iter>
 void quick_sort3(Iter it1, Iter it2) {
     auto size = std::distance(it1, it2);
     if (size <= 1) return;
     
-    auto tmp = median(*it1, *std::next(it1, size / 2), *std::prev(it2));
+    median(it1, std::next(it1, size / 2), std::prev(it2));
     
     Iter begin = it1;
     Iter end = it2;
     while (begin < end) {
-        while (*begin < tmp) ++begin;
-        while (*--end > tmp);
+        while (*++begin < *it1);
+        while (*--end > *it1);
         if (begin < end) std::iter_swap(begin, end);
-        ++begin;
     }
     
-    *end = tmp;
+    std::swap(*it1, *end);          //*it只会在这里改变，所以无需使用临时值；
     quick_sort3(it1, end);
     quick_sort3(std::next(end), it2);
 }
 
-2  三取样切分只要找到mid就可以了，所以简洁实现如下（可能不是最好的方案，但是简洁）：
-template<class T>
-T median(const T& a, const T& b, const T& c) {
-    T max_element = std::max(std::max(a, b), c);
-    T min_element = std::min(std::min(a, b), c);
-    return a + b + c - max_element - min_element;
-}
+2  一定数量之后插入到插入排序：插入排序的算法可以见那三行代码；递归前先检查元素数目在[5,20]之间都可以调用插入排序了，stl用的临界值是16；
 
-3  一定数量之后插入到插入排序：插入排序的算法可以见那三行代码；递归前先检查元素数目在[5,20]之间都可以调用插入排序了，stl用的临界值是16；
-
-4  自我检测是否有恶化的趋向：可以实现一个2^k个数据以内的话，就按2*k作为栈的最大深度，如果递归的过程中超过了这个深度，就调用
+3  自我检测是否有恶化的趋向：可以实现一个2^k个数据以内的话，就按2*k作为栈的最大深度，如果递归的过程中超过了这个深度，就调用
 std::partial_sort(begin,middle,end)来进行排序，而不再递归；
 std::partial_sort实现的原理是堆排序，将[begin, middle)内顺序装满整个数组的最小的几个，实现步骤是，先将原数组这个区间内的数据make_heap一下，
 调整为一个堆，然后遍历[middle,end)中的元素和前面堆的最大值比，如果比最大值小，说明该往前换，换完之后就重新调整堆，最后调整完了，就使用sort_heap
 将这个数组排序一下；
 
+四  SGI快速排序的设计方案：
+（1）根据数据量求取要用到的栈的最大深度；
+（2）判断数据量大小，如果小于16，就进行插入排序，否则继续快速排序；
+（3）判断快速排序的栈深度如果小于0了，就使用堆排序，不再使用快速排序。（partial_sort）
+（4）栈深度没到达0呢，此时就进行快速排序，其快速排序partition是将数据分为了两层，前者小于等于*first，后者大于等于*first，注意，没有使得任何元素到达
+其最终位置，*first是在遍历数组过程中第一个寻找的元素，与切分元素无关；（切分元素的选取也是用的三取样切分）
+（5）可以看到，经过快速排序没有数据到达其最终位置，而数据到达其最终位置的行为是插入排序实现的。
 
-四   最后针对重复元素做出的特殊考虑：
+五   最后针对重复元素做出的特殊考虑：
 1  重复元素很多的情况下，使用这个上面的快速排序算法不会变差，但是也不会更好。（如果交换的话，甚至会发生许多交换，速度变慢）
 2  可以重新设计一个快速排序算法，来专门处理多重复数据。
 三向切分算法：每次递归都会遍历一遍数组元素，遍历完成之后，效果是：比切分元素小，切分元素，比切分元素大；
@@ -108,3 +123,57 @@ void quick_sort4(Iter it1,Iter it2) {
     quick_sort4(it1, p1);
     quick_sort4(p2, it2);
 }
+
+六   partition函数的设计
+（1）本例中快速排序中的partition和SGI快速排序的partition设计的不同点：
+----》本例中partition每轮会将切分元素放到其最终位置上去，切分元素选取为第一个元素；SGI的partition则只是将数据分为两个部分，并且两个部分的切分元素是
+*first。
+----》实现上，都注意了边界条件的设置，前者使用的是三取样切分中设置最后元素为大于等于切分元素的值，这个哨兵使得无需考虑边界条件，第一个元素为切分元素，
+只有最后找到其交换位置了才使用；后者是从第一个元素开始遍历，但是切分元素只是三取样切分中找到的数，不一定是第一个元素。后者不考虑边界条件的方案如下：
+template<class Iter, class T>
+Iter partition(Iter it1, Iter it2, const T& value) {
+    while (true) {
+        while (*it1 < value) ++it1;             //从第一个元素就使用了，所以无法仅仅用一个前置++解决；
+        while (*--it2 > value);
+        if (it1 < it2)
+            std::iter_swap(it1, it2);
+        else
+            return it1;                         //将数组在it1的位置上分成了两部分，前者小于等于*it1,后者大于等于*it1，it是第二个部分的第一个元素
+        ++it1;
+    }
+}
+
+（2）另外两个partition函数：
+----》std::partition(begin,end,unary_function)，是将满足条件的数据放到前面，不满足的放到后面。返回的是第二个部分的首个位置（和快速排序的partition类似）；
+实现原理：两个指针，一个从头找不满足条件的直到找到，后者从后边开始找满足条件的直到找到，然后交换；期间会进行很多的边界检查，没有快速排序那个条件可以去掉边界检查。
+----》std::nth_element(begin,middle,end，std::greater<int>())，会将middle位置处的元素找到
+实现原理：也利用了三取样切分，然后快速排序的partition划分，最后元素小于三个的时候使用快速排序解决。
+----》自己实现的nth_element:(和快速排序基本相同)
+    int kthLargestElement(int k, vector<int> nums) {
+        return search(nums, 0, nums.size(), k);
+    }
+    
+    void median(int& a, int& b, int& c) {
+        int max_element = max(max(a,b),c);
+        int min_element= min(min(a,b),c);
+        int mid = a + b + c - max_element -min_element;
+        swap(a, mid);
+        swap(max_element, c);
+        swap(min_element, b);
+    }
+    
+    int search(vector<int>& nums, int i, int j, int k) {
+        median(nums[i], nums[i + (j - i) / 2], nums[j - 1]);
+        int begin = i;                                      //故意取不使用的元素作为开始，以满足前置++和while循环的搭配
+        int end = j;
+        while (true) {
+            while (nums[++begin] > nums[i]);
+            while (nums[--end] < tmp);
+            if (begin < end) swap(nums[begin], nums[end]);
+            else break;
+        }
+        swap(nums[end] , nums[i]);
+        if (end == k - 1) return nums[end];             //只需要比较索引end和k就好了。（第k大，对应的索引是k-1）
+        else if (end > k - 1) return search(nums, i, end, k);
+        else return search(nums, end + 1, j, k);
+    }
