@@ -37,25 +37,40 @@ void insert_sort1(Iter it1, Iter it2) {
 
 /* 技巧2：如何使用前置++和while循环搭配
 * （1）原理：前置++效率比后置++要高，所以使用上尽可能地使用前置++，然后合适的搭配while循环可以使得代码行数减少，比如省掉单独的++操作；
-* （2）使用方法：在初始化变量时，有意的声明当前位置的前一个位置的（++），或者当前位置的后一个位置的（--）；（本例中由于是从第二个元素开始，所以符合条件，
-*     但这不代表此题是快速排序的标准解法）
+* （2）使用方法：在初始化变量时，有意的声明当前位置的前一个位置的（++），或者当前位置的后一个位置的（--）；（本例中由于是从第二个元素和最后一个元素
+*     开始，所以正好定义第一个元素和end()作为初始值，所以符合条件）
 */
+template<class Iter>
+void median(Iter a, Iter b, Iter c) {
+    typedef typename Iter::value_type T;
+    if (b == c) {
+        if (*a > *b) std::swap(*a, *b);
+        return;
+    }
+    T max_element = std::max(std::max(*a, *b), *c);
+    T min_element = std::min(std::min(*a, *b), *c);
+    T mid = *a + *b + *c - max_element - min_element;
+    std::swap(*a, mid);
+    std::swap(*b, min_element);
+    std::swap(*c, max_element);
+}
 
 template<class Iter>
-void quick_sort(Iter it1, Iter it2) {
+void quick_sort3(Iter it1, Iter it2) {
     auto size = std::distance(it1, it2);
-    if (size < 2) return;
+    if (size <= 1) return;
+    
+    median(it1, std::next(it1, size / 2), std::prev(it2));
     
     Iter begin = it1;
     Iter end = it2;
-    auto tmp = *it1;
     while (begin < end) {
-        while (*--end > tmp );  //没有必要使用边界判断，因为*begin肯定是等于的；
-        *begin = *end;
-        while (begin < end && *++begin < tmp);
-        *end = *begin;
+        while (*++begin < *it1);
+        while (*--end > *it1);
+        if (begin < end) std::iter_swap(begin, end);
     }
-    *begin = tmp;
-    quick_sort(it1, begin);
-    quick_sort(begin + 1, it2);
+    
+    std::swap(*it1, *end);
+    quick_sort3(it1, end);
+    quick_sort3(std::next(end), it2);
 }
