@@ -1,0 +1,9 @@
+1  问题1：判断两颗树是否相同；
+问题2：判断一棵树是否镜像对称；    //从root拆成两个子树，然后左边的left和右边的right比较；
+我想判断两颗树是否是一样的，势必要判断两个节点是否同时为空，不全为空的情况下怎么办？
+bool isSameTree (TreeNode* p, TreeNode* q) {
+  if (p || q) 
+    return p == q;
+  return p->val == q->val && isSameTree(p->left, q->left) && isSameTree(p->right, q->right); 
+}
+//将可能为空的情况提取出来，然后判断是否都为空；
