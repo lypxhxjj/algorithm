@@ -159,6 +159,12 @@ public:
     }
 };
 
+
+/*新建树的基本原则：
+（1）helper的返回值是TreeNode*类型；
+（2）开始就创建node，然后递归产生root->left，和root->right;
+*/
+
 //根据前序和中序，新建一个树；
 //思路固定:前序的第一个元素肯定是root，然后根据这个点将中序分为两个部分，根据这两个部分的大小也将先序分为两个部分；分别成为子问题；
 class Solution {
@@ -194,5 +200,22 @@ public:
     TreeNode* buildTree(vector<int>& inorder, vector<int>& postorder) {
         if (inorder.size() == 0) return nullptr;
         return helper(inorder.begin(), inorder.end(), postorder.begin(), postorder.end());
+    }
+};
+
+//使用此方法：根据有序数组构建一个高度平衡的二叉搜索树，至为简单
+class Solution {
+    template<class Iter>
+    TreeNode* helper(Iter it1, Iter it2) {
+        if (it1 == it2) return nullptr;
+        Iter mid = it1 + (it2 - it1) / 2;
+        TreeNode* root = new TreeNode(*mid);        //都不需要比较，因为大的自动到了右边，小的自动到了左边；
+        root->left = helper(it1, mid);
+        root->right = helper(mid + 1, it2);
+        return root;
+    }
+public:
+    TreeNode* sortedArrayToBST(vector<int>& nums) {
+        return helper(nums.begin(), nums.end());
     }
 };
