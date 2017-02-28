@@ -158,3 +158,23 @@ public:
         return result;
     }
 };
+
+//根据前序和中序，新建一个树；
+//思路固定:前序的第一个元素肯定是root，然后根据这个点将中序分为两个部分，根据这两个部分的大小也将先序分为两个部分；分别成为子问题；
+class Solution {
+    template<class Iter>
+    TreeNode* helper(Iter pre1, Iter pre2, Iter in1, Iter in2) {        //与vector算法相关的使用迭代器，不用纠结于index还是第几个的问题；
+        if (in1 == in2) return nullptr;
+        TreeNode* root = new TreeNode(*pre1);
+        auto it = find(in1, in2, *pre1);
+        root->left = helper(pre1 + 1, it - in1 + pre1 + 1, in1, it);
+        root->right = helper(it - in1 + pre1 + 1, pre2, it + 1, in2);
+        return root;
+    }
+public:
+    TreeNode* buildTree(vector<int>& preorder, vector<int>& inorder) {
+        if (preorder.size() == 0) return nullptr;
+        return helper(preorder.begin(), preorder.end(), inorder.begin(), inorder.end());
+        
+    }
+};
