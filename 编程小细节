@@ -22,3 +22,16 @@ public:
         return max(maxDepth(root->left), maxDepth(root->right)) + 1;    //返回int或者bool都可以将左右的遍历放到return上；
     }
 };
+由此，判断高度平衡的算法是：
+class Solution {
+    int cal_height(TreeNode* root) {
+        if (!root) return 0;
+        return max(cal_height(root->left), cal_height(root->right)) + 1;  //这有递归；
+    }
+public:
+    bool isBalanced(TreeNode* root) {
+        if (!root) return true;
+        if (abs(cal_height(root->left) - cal_height(root->right)) > 1) return false;
+        return isBalanced(root->left) && isBalanced(root->right);                     //这也有递归；
+    }
+};
