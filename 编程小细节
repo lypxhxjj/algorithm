@@ -2,11 +2,10 @@
 问题2：判断一棵树是否镜像对称；    //从root拆成两个子树，然后左边的left和右边的right比较；
 我想判断两颗树是否是一样的，势必要判断两个节点是否同时为空，不全为空的情况下怎么办？
 bool isSameTree (TreeNode* p, TreeNode* q) {
-  if (p || q) 
+  if (p || q)                                 //将可能为空的情况提取出来，然后判断是否都为空；
     return p == q;
   return p->val == q->val && isSameTree(p->left, q->left) && isSameTree(p->right, q->right); 
 }
-//将可能为空的情况提取出来，然后判断是否都为空；
 
 
 2  树的问题，一般可以使用返回值的，有以下几种情况：
@@ -35,3 +34,11 @@ public:
         return isBalanced(root->left) && isBalanced(root->right);                     //这也有递归；
     }
 };
+挑战性：计算高度最小值，必须是根到叶子节点：
+    int minDepth(TreeNode* root) {
+        if (!root) return 0;
+        int min1 = minDepth(root->left);
+        int min2 = minDepth(root->right);
+        return (min1 == 0 || min2 == 0) ?  min1 + min2 + 1 :min(min1, min2) + 1;   //两个技巧，两个数不知道哪个为0，使用min1 + min2 + 1;
+                                                                                   //此题如果是长度为0，就不能计算0为最小长度；因为缺少一个子节点，但是另一节点不为空，当前节点就不是叶子节点；
+    }
