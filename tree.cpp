@@ -178,3 +178,21 @@ public:
         
     }
 };
+
+//同样道理，根据中序和后序遍历新建一个二叉树；
+class Solution {
+    template<class Iter>
+    TreeNode* helper(Iter in1, Iter in2, Iter post1, Iter post2) {  
+        if (in1 == in2) return nullptr;                         //根据的是中序将二者分成了两个部分，所以只需要检验中序就可以
+        TreeNode* root = new TreeNode(*(post2 - 1));
+        auto it = find(in1, in2, *(post2 - 1));
+        root->left = helper(in1, it, post1, post1 + (it - in1));
+        root->right = helper(it + 1, in2, post1 + (it - in1), post2 - 1);
+        return root;
+    }
+public:
+    TreeNode* buildTree(vector<int>& inorder, vector<int>& postorder) {
+        if (inorder.size() == 0) return nullptr;
+        return helper(inorder.begin(), inorder.end(), postorder.begin(), postorder.end());
+    }
+};
