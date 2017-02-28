@@ -219,3 +219,16 @@ public:
         return helper(nums.begin(), nums.end());
     }
 };
+
+
+//遍历树如何按路径遍历        //此题的方法思路比较推荐，所以单独放到一块；
+//问题：看有没有一条路径的加和是sum；
+class Solution {
+public:
+    bool hasPathSum(TreeNode* root, int sum) {
+        if (!root) return false;
+        if (!root->left && !root->right) 
+            return sum == root->val;
+        return hasPathSum(root->left, sum - root->val) || hasPathSum(root->right, sum - root->val);
+    }                       //树要是使用递归的话，就需要考虑如何拆分成左右子树，这里是或的关系，跳出条件就是叶子节点处的值恰好为sum；
+};
