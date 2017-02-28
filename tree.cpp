@@ -1,3 +1,22 @@
+//中序遍历的非递归版本，格式固定
+class Solution {
+public:
+    vector<int> inorderTraversal(TreeNode* root) {
+        vector<int> result;
+        stack<TreeNode*> s; 
+        while (root || !s.empty()) {
+            while (root) {                  //第一步，左边的全部进栈；
+                s.push(root);
+                root = root->left;
+            }
+            root = s.top();
+            result.push_back(root->val);    //第二步，从栈顶获取数据；
+            s.pop();
+            root = root->right;             //第三步，切换到栈顶元素的右子树；
+        }
+        return result;
+    }
+};
 /*
 1  判断一颗树是否是二叉搜索树：
 （1）与二叉搜索树有关的，很可能是中序遍历；
@@ -94,5 +113,47 @@ public:
             root = root->right;
         }
         swap(pre1->val, cur->val);
+    }
+};
+
+// 3  层序遍历的递归版本，比较简单：
+class Solution {
+    void traverse(TreeNode* root, int level, vector<vector<int>>& result) {
+        if (!root) return;
+        if (level > result.size())
+            result.push_back({});
+        result[level - 1].push_back(root->val);
+        traverse(root->left, level + 1, result);
+        traverse(root->right, level + 1, result);
+    }
+public:
+    vector<vector<int>> levelOrder(TreeNode* root) {
+        vector<vector<int>> result;
+        traverse(root, 1, result);
+        return result;
+    }
+};
+
+//非递归算法：
+class Solution {
+public:
+    vector<vector<int>> levelOrder(TreeNode* root) {
+        vector<vector<int>> result;
+        if (!root) return result;
+        queue<TreeNode*> p, q;              //两个队列，分别代表一行，使用swap技术来交换！swap技术好牛叉；
+        p.push(root);
+        while (!p.empty()) {
+            vector<int> tmp;
+            while (!p.empty()) {
+                TreeNode* node = p.front();
+                tmp.push_back(node->val);
+                if (node->left) q.push(node->left);
+                if (node->right) q.push(node->right);
+                p.pop();
+            }
+            if (tmp.size()) result.push_back(tmp);
+            swap(p, q);
+        }
+        return result;
     }
 };
