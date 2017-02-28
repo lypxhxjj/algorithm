@@ -7,3 +7,18 @@ bool isSameTree (TreeNode* p, TreeNode* q) {
   return p->val == q->val && isSameTree(p->left, q->left) && isSameTree(p->right, q->right); 
 }
 //将可能为空的情况提取出来，然后判断是否都为空；
+
+
+2  树的问题，一般可以使用返回值的，有以下几种情况：
+（1）判断是否的；
+（2）计算长度的；
+（3）创建树的；
+有返回值的一般利用起来是特别方便的：
+问题1：计算树的高度：
+class Solution {
+public:
+    int maxDepth(TreeNode* root) {
+        if (!root) return 0;
+        return max(maxDepth(root->left), maxDepth(root->right)) + 1;    //返回int或者bool都可以将左右的遍历放到return上；
+    }
+};
