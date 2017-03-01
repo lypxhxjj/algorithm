@@ -116,3 +116,90 @@ void sort_heap(RandomIt first, RandomIt last, Compare cmp = Compare{})
 }
 
 }   // namespace lib
+
+//以下添加4种遍历树的方法，前三种格式非常统一，最后一种的swap用的非常好；
+
+//前序遍历
+class Solution {
+public:
+    vector<int> preorderTraversal(TreeNode* root) {
+        vector<int> result;
+        stack<TreeNode*> s;
+        while (root || !s.empty()) {
+            while (root) {                              //第一步，添加子节点；
+                s.push(root);
+                result.push_back(root->val);
+                root = root->left;
+            }
+            root = s.top();                             //第二步，出栈操作；
+            s.pop();
+            root = root->right;                         //第三步，切换到右节点；
+        }
+        return result;
+    }
+};
+
+//中序遍历
+class Solution {
+public:
+    vector<int> inorderTraversal(TreeNode* root) {
+        vector<int> result;
+        stack<TreeNode*> s; 
+        while (root || !s.empty()) {
+            while (root) {
+                s.push(root);
+                root = root->left;
+            }
+            root = s.top();
+            result.push_back(root->val);
+            s.pop();
+            root = root->right;
+        }
+        return result;
+    }
+};
+
+//后序遍历
+class Solution {
+public:
+    vector<int> postorderTraversal(TreeNode* root) {
+        vector<int> result;
+        stack<TreeNode*> s;
+        while (root || !s.empty()) {
+            while (root) {
+                s.push(root);
+                result.push_back(root->val);
+                root = root->right;
+            }
+            root = s.top();
+            s.pop();
+            root = root->left;
+        }
+        reverse(result.begin(), result.end());
+        return result;
+    }
+};
+
+//层序遍历
+class Solution {
+public:
+    vector<vector<int>> levelOrder(TreeNode* root) {
+        vector<vector<int>> result;
+        if (!root) return result;
+        queue<TreeNode*> p, q;
+        p.push(root);
+        while (!p.empty()) {
+            vector<int> tmp;
+            while (!p.empty()) {
+                TreeNode* node = p.front();
+                tmp.push_back(node->val);
+                if (node->left) q.push(node->left);
+                if (node->right) q.push(node->right);
+                p.pop();
+            }
+            if (tmp.size()) result.push_back(tmp);
+            swap(p, q);                                 //swap用的少了很多代码；
+        }
+        return result;
+    }
+};
