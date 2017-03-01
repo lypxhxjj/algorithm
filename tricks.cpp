@@ -123,3 +123,25 @@ void quick_sort3(Iter it1, Iter it2) {
         return dummy.next;
         
     }
+
+/*
+4  求二叉树中总和最大的子树的值；（一种思路，值得提倡；）
+基本思路：对于一个节点，有两种情况，要么是加上左子树的值，要么是加上右子树的值，最后这个节点作为根节点的最大和和最大值比；
+*/
+public class Solution {
+    int maxValue;
+    
+    public int maxPathSum(TreeNode root) {
+        maxValue = Integer.MIN_VALUE;
+        maxPathDown(root);
+        return maxValue;
+    }
+    
+    private int maxPathDown(TreeNode node) {
+        if (node == null) return 0;
+        int left = Math.max(0, maxPathDown(node.left));
+        int right = Math.max(0, maxPathDown(node.right));
+        maxValue = Math.max(maxValue, left + right + node.val);
+        return Math.max(left, right) + node.val;
+    }
+}
