@@ -232,3 +232,25 @@ public:
         return hasPathSum(root->left, sum - root->val) || hasPathSum(root->right, sum - root->val);
     }                       //树要是使用递归的话，就需要考虑如何拆分成左右子树，这里是或的关系，跳出条件就是叶子节点处的值恰好为sum；
 };
+
+//使用前序遍历得到所有的路径
+class Solution {
+    void preorder(TreeNode* root, vector<vector<int>>& result, vector<int> tmp, int sum) {
+        if (!root) return;
+        tmp.push_back(root->val);                                       //前序遍历 + 非全局的部分路径tmp，直到叶子节点才被push_back；
+        sum -= root->val;
+        if (!root->left && !root->right && sum == 0) {
+            result.push_back(tmp);
+        }
+        preorder(root->left, result, tmp, sum);
+        preorder(root->right, result, tmp, sum);
+        
+    }
+public:
+    vector<vector<int>> pathSum(TreeNode* root, int sum) {
+        vector<vector<int>> result;
+        vector<int> tmp;
+        preorder(root, result, tmp, sum);
+        return result;
+    }
+};
