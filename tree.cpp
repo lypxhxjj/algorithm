@@ -272,3 +272,27 @@ public:
         postorder(root, pre);
     }
 };
+
+//层序遍历来解决问题：非递归算法比递归算法灵活很多；
+//问题：将每行的数据使用箭头连接起来；
+class Solution {
+public:
+    void connect(TreeLinkNode *root) {
+        if (!root) return;
+        queue<TreeLinkNode*> p, q;
+        p.push(root);
+        TreeLinkNode* pre = nullptr;        //与层序遍历相比，这个就是多需要一个前继节点；
+        while (!p.empty()) {
+            pre = nullptr;
+            while (!p.empty()) {
+                root = p.front();
+                if (pre != nullptr) pre->next = root;
+                pre = root;
+                p.pop();
+                if (root->left) q.push(root->left);
+                if (root->right) q.push(root->right);
+            }
+            p.swap(q);
+        }
+    }
+};
