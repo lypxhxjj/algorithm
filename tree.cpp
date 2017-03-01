@@ -254,3 +254,21 @@ public:
         return result;
     }
 };
+
+//使用和后序遍历对称的方式来遍历，从而解题。         //说起来，这种也是有很多种方法的遍历方式；
+//题目，将树变成一个只有右节点的flat树；
+class Solution {
+    void postorder(TreeNode* root, TreeNode*& pre) {
+        if (!root) return;
+        postorder(root->right, pre);
+        postorder(root->left, pre);
+        root->left = nullptr;                   //从右下角开始遍历
+        root->right = pre;
+        pre = root;
+    }
+public:
+    void flatten(TreeNode* root) {
+        TreeNode* pre = nullptr;
+        postorder(root, pre);
+    }
+};
