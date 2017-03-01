@@ -296,3 +296,25 @@ public:
         }
     }
 };
+//优化，如果需要使用常数空间，此题的思路是，链表就要有dummy；
+class Solution {
+public:
+    void connect(TreeLinkNode *root) {
+        if (!root) return;
+        while (root) {
+            TreeLinkNode dummy(0), *result = &dummy;
+            while (root) {
+                if (root->left) {
+                    result->next = root->left;
+                    result = result->next;
+                }
+                if (root->right) {
+                    result->next = root->right;
+                    result = root->right;
+                }
+                root = root->next;
+            }
+            root = dummy.next;
+        }
+    }
+};
