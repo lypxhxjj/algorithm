@@ -120,6 +120,37 @@ public:
     }
 };
 
+//判断二叉搜索树（包含重复）中出现次数最多的那些数字；
+class Solution {
+    void inorder(TreeNode* root, int& cur, int& count, vector<int>& result, int& max_size) { //目前的值及总次数，是全局的，所以引用传递；
+        if (!root) return;
+        inorder(root->left, cur, count, result, max_size);
+        if (root->val == cur)
+            count++;
+        else {
+            cur = root->val;
+            count = 1;
+        }
+        if (count == max_size) {            //如果等于了，也加入结果数组；
+            result.push_back(cur);
+        }
+        else if(count > max_size) {         //如果大于了，清空结果数组；
+            result.resize(0);
+            result.push_back(cur);
+            max_size = count;
+        }
+        inorder(root->right, cur, count, result, max_size);
+    }
+public:
+    vector<int> findMode(TreeNode* root) {
+        vector<int> result;
+        int max_size = 0;
+        int cur = INT_MIN;
+        int count = 0;
+        inorder(root, cur, count, result, max_size);
+        return result;
+    }
+};
 /**************************************** 后序遍历的问题 ********************************/
 /*  后序遍历处理的问题是：以任一个节点为根节点，与其下面所有的节点构成的树的性质
 */
