@@ -358,7 +358,7 @@ class Solution {
     }
 public:
     void flatten(TreeNode* root) {
-        TreeNode* pre = nullptr;
+        TreeNode* pre = nullptr;            //采取某种遍历的方式才可以使用pre，且初始值是nullptr；
         postorder(root, pre);
     }
 };
