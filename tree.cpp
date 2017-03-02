@@ -324,6 +324,24 @@ public:
     }
 };
 
+//同是使用前序遍历得到一条路径的问题：判断有没有一条路径的和是sum；
+class Solution {
+    bool preorder(TreeNode* root, int sum) {
+        if (!root) return false;
+        if (!root->left && !root->right) {                          //强调root-to-leaf的，一定要检验是否是叶子节点，不能直接检查当前节点是否为空；
+            if (sum == root->val) return true;          
+            else return false;
+        }
+        return preorder(root->left, sum - root->val) || preorder(root->right, sum - root->val); //前序遍历没有问题；
+    }
+public:
+    bool hasPathSum(TreeNode* root, int sum) {
+        if (!root) return false;
+        return preorder(root, sum);
+    }
+};
+
+
 /***************************************** 另类的遍历方式 ****************************/
 /*
 * 分析题目的时候，遍历方式可以与前序，中序，后序遍历相反的方式来解题，代码还是差不多的；
