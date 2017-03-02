@@ -120,6 +120,34 @@ public:
     }
 };
 
+/**************************************** 后序遍历的问题 ********************************/
+/*  后序遍历处理的问题是：以任一个节点为根节点，与其下面所有的节点构成的树的性质
+*/
+
+//以当前节点作为根节点的树的所有数和中，和出现次数最多的那些和
+class Solution {
+    int poster(TreeNode* root, unordered_map<int, int>& map, int& max_value) {
+        if (!root) return 0;
+        int left = poster(root->left, map, max_value);
+        int right = poster(root->right, map, max_value);
+        int sum = root->val + left + right;
+        map[sum]++;
+        max_value = max(max_value, map[sum]);
+        return sum;
+    }
+public:
+    vector<int> findFrequentTreeSum(TreeNode* root) {
+        vector<int> result;
+        unordered_map<int, int> map;
+        int max = 0;
+        poster(root, map, max);
+        for (auto m : map) {
+            if (m.second == max)
+                result.push_back(m.first);
+        }
+        return result;
+    }
+};
 /**************************************** 层序遍历的问题 ******************************/
 /*
 * (1)层序遍历的非递归算法；
