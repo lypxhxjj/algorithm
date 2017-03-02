@@ -279,6 +279,28 @@ public:
     }
 };
 
+//根据有序链表新建二叉搜索树；（难点在于怎么找到链表的中点）
+class Solution {
+    ListNode* get_mid_element(ListNode* head, ListNode* end) {  //链表的中点需要单独一个函数来遍历；
+        if (head == end) return nullptr;
+        ListNode* first = head, *second = head;
+        while (second != end && second->next != end) {
+            first = first->next;
+            second = second->next->next;
+        }
+        return first;
+    }
+public:
+    TreeNode* sortedListToBST(ListNode* head, ListNode* end = nullptr) {
+        ListNode* mid = get_mid_element(head, end);         //实现链表的二分法，可以使用两个参数，第二个参数代表链表结束；
+        if (!mid) return nullptr;
+        TreeNode* root = new TreeNode(mid->val);
+        root->left = sortedListToBST(head, mid);
+        root->right = sortedListToBST(mid->next, end);
+        return root;
+    }
+};
+
 /*************************************** 前序遍历的算法题 *************************************/
 //使用前序遍历得到所有的路径
 class Solution {
