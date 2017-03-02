@@ -1,4 +1,10 @@
-//中序遍历的非递归版本，格式固定
+/**************************************** 中序遍历的问题  *********************************************/
+/*
+*（1）中序遍历的非递归版本；
+* (2)二叉搜索树的问题；
+*/
+
+//1  中序遍历的非递归版本，格式固定
 class Solution {
 public:
     vector<int> inorderTraversal(TreeNode* root) {
@@ -17,12 +23,9 @@ public:
         return result;
     }
 };
-/*
-1  判断一颗树是否是二叉搜索树：
-（1）与二叉搜索树有关的，很可能是中序遍历；
-*/
 
-//错误：需要使用LONG_MIN;
+
+//2  判断一颗树是否是二叉搜索树：
 class Solution {
     void helper(bool& result, TreeNode* root, long long& value) {
         if (!root || !result) return;
@@ -34,7 +37,7 @@ class Solution {
 public:
     bool isValidBST(TreeNode* root) {
         bool result = true;
-        long long value = LLONG_MIN;
+        long long value = LLONG_MIN;        //需要使用LLONG_MIN;
         helper(result, root, value);
         return result;
     }
@@ -62,7 +65,7 @@ public:
 };
 
 /*
-2  二叉搜索树有两个节点颠倒了，交换过来
+3  二叉搜索树有两个节点颠倒了，交换过来
 （1）与二叉搜索树相关的使用中序遍历；
 （1）思路是难点：两个节点第一次不顺序时，需要被交换的是前继节点；第二次不顺序时，需要被交换的是后继节点；没有第二次的话，说明只有两个节点，就交换那两个节点就好了；
 （2）保存前继节点pre，只有在中序遍历的时候保存前继节点才有意义；
@@ -117,7 +120,13 @@ public:
     }
 };
 
-// 3  层序遍历的递归版本，比较简单：
+/**************************************** 层序遍历的问题 ******************************/
+/*
+* (1)层序遍历的非递归算法；
+*（2）按层处理的，比如获取每行最后一个值（最大值），比如每行使用next连接起来；
+*/
+
+//1  层序遍历的递归版本非递归版本；
 class Solution {
     void traverse(TreeNode* root, int level, vector<vector<int>>& result) {
         if (!root) return;
@@ -159,10 +168,60 @@ public:
     }
 };
 
+//2  问题：将每行的数据使用箭头连接起来；
+class Solution {
+public:
+    void connect(TreeLinkNode *root) {
+        if (!root) return;
+        queue<TreeLinkNode*> p, q;
+        p.push(root);
+        TreeLinkNode* pre = nullptr;        //与层序遍历相比，这个就是多需要一个前继节点；（前继节点的使用就是在遍历的时候有用）
+        while (!p.empty()) {
+            pre = nullptr;
+            while (!p.empty()) {
+                root = p.front();
+                if (pre != nullptr) pre->next = root;
+                pre = root;
+                p.pop();
+                if (root->left) q.push(root->left);
+                if (root->right) q.push(root->right);
+            }
+            p.swap(q);
+        }
+    }
+};
+//优化，如果需要使用常数空间，此题的思路是，链表就要有dummy；
+class Solution {
+public:
+    void connect(TreeLinkNode *root) {
+        if (!root) return;
+        while (root) {
+            TreeLinkNode dummy(0), *result = &dummy;        //与链表有关，就要使用dummy；
+            while (root) {
+                if (root->left) {
+                    result->next = root->left;
+                    result = result->next;
+                }
+                if (root->right) {
+                    result->next = root->right;
+                    result = root->right;
+                }
+                root = root->next;
+            }
+            root = dummy.next;
+        }
+    }
+};
 
+/*********************************************** 新建树的问题 **********************************/
 /*新建树的基本原则：
 （1）helper的返回值是TreeNode*类型；
 （2）开始就创建node，然后递归产生root->left，和root->right;
+（3）貌似使用迭代器的方法比较简单；
+*/
+/*
+* (1)根据前序和中序，中序和后序新建树；
+*（2）有序数组构建搜索二叉树；
 */
 
 //根据前序和中序，新建一个树；
@@ -208,7 +267,7 @@ class Solution {
     template<class Iter>
     TreeNode* helper(Iter it1, Iter it2) {
         if (it1 == it2) return nullptr;
-        Iter mid = it1 + (it2 - it1) / 2;
+        Iter mid = it1 + (it2 - it1) / 2;            //使用迭代器取中间元素，是第二部分的第一个元素；
         TreeNode* root = new TreeNode(*mid);        //都不需要比较，因为大的自动到了右边，小的自动到了左边；
         root->left = helper(it1, mid);
         root->right = helper(mid + 1, it2);
@@ -220,19 +279,7 @@ public:
     }
 };
 
-
-//遍历树如何按路径遍历        //此题的方法思路比较推荐，所以单独放到一块；
-//问题：看有没有一条路径的加和是sum；
-class Solution {
-public:
-    bool hasPathSum(TreeNode* root, int sum) {
-        if (!root) return false;
-        if (!root->left && !root->right) 
-            return sum == root->val;
-        return hasPathSum(root->left, sum - root->val) || hasPathSum(root->right, sum - root->val);
-    }                       //树要是使用递归的话，就需要考虑如何拆分成左右子树，这里是或的关系，跳出条件就是叶子节点处的值恰好为sum；
-};
-
+/*************************************** 前序遍历的算法题 *************************************/
 //使用前序遍历得到所有的路径
 class Solution {
     void preorder(TreeNode* root, vector<vector<int>>& result, vector<int> tmp, int sum) {
@@ -255,7 +302,10 @@ public:
     }
 };
 
-//使用和后序遍历对称的方式来遍历，从而解题。         //说起来，这种也是有很多种方法的遍历方式；
+/***************************************** 另类的遍历方式 ****************************/
+/*
+* 分析题目的时候，遍历方式可以与前序，中序，后序遍历相反的方式来解题，代码还是差不多的；
+*/
 //题目，将树变成一个只有右节点的flat树；
 class Solution {
     void postorder(TreeNode* root, TreeNode*& pre) {
@@ -273,48 +323,3 @@ public:
     }
 };
 
-//层序遍历来解决问题：非递归算法比递归算法灵活很多；
-//问题：将每行的数据使用箭头连接起来；
-class Solution {
-public:
-    void connect(TreeLinkNode *root) {
-        if (!root) return;
-        queue<TreeLinkNode*> p, q;
-        p.push(root);
-        TreeLinkNode* pre = nullptr;        //与层序遍历相比，这个就是多需要一个前继节点；
-        while (!p.empty()) {
-            pre = nullptr;
-            while (!p.empty()) {
-                root = p.front();
-                if (pre != nullptr) pre->next = root;
-                pre = root;
-                p.pop();
-                if (root->left) q.push(root->left);
-                if (root->right) q.push(root->right);
-            }
-            p.swap(q);
-        }
-    }
-};
-//优化，如果需要使用常数空间，此题的思路是，链表就要有dummy；
-class Solution {
-public:
-    void connect(TreeLinkNode *root) {
-        if (!root) return;
-        while (root) {
-            TreeLinkNode dummy(0), *result = &dummy;
-            while (root) {
-                if (root->left) {
-                    result->next = root->left;
-                    result = result->next;
-                }
-                if (root->right) {
-                    result->next = root->right;
-                    result = root->right;
-                }
-                root = root->next;
-            }
-            root = dummy.next;
-        }
-    }
-};
