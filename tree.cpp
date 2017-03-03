@@ -502,6 +502,27 @@ public:
     }
 };
 
+//寻找里面的某个子树，root和leaf不必是原来的root和leaf，加和是sum的数量；
+class Solution {
+    void preorderImpl (TreeNode* root, int sum, int& result) {      //两遍前序遍历来遍历；
+        if (!root) return;
+        preorder(root, sum, result);                                   //每个节点分别去当一下根节点；
+        preorderImpl(root->left, sum, result);
+        preorderImpl(root->right, sum, result);
+    }
+    void preorder(TreeNode* root, int sum, int& result) {
+        if (!root) return;
+        if (root->val == sum) result++;
+        preorder(root->left, sum - root->val, result);
+        preorder(root->right, sum - root->val, result);
+    }
+public:
+    int pathSum(TreeNode* root, int sum) {
+        int result = 0;
+        preorderImpl(root, sum, result);
+        return result;
+    }
+};
 /************************************** 需要用到返回值的典型题 *****************************/
 /* 树的问题，一般可以使用返回值的，有以下几种情况：
 （1）判断是否的；
