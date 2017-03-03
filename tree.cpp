@@ -283,7 +283,7 @@ public:
 *（2）有序数组构建搜索二叉树；
 */
 
-//根据前序和中序，新建一个树；
+//1 根据前序和中序，新建一个树；
 //思路固定:前序的第一个元素肯定是root，然后根据这个点将中序分为两个部分，根据这两个部分的大小也将先序分为两个部分；分别成为子问题；
 class Solution {
     template<class Iter>
@@ -303,7 +303,7 @@ public:
     }
 };
 
-//同样道理，根据中序和后序遍历新建一个二叉树；
+//2 同样道理，根据中序和后序遍历新建一个二叉树；
 class Solution {
     template<class Iter>
     TreeNode* helper(Iter in1, Iter in2, Iter post1, Iter post2) {  
@@ -321,7 +321,7 @@ public:
     }
 };
 
-//使用此方法：根据有序数组构建一个高度平衡的二叉搜索树，至为简单
+//3 使用此方法：根据有序数组构建一个高度平衡的二叉搜索树，至为简单
 class Solution {
     template<class Iter>
     TreeNode* helper(Iter it1, Iter it2) {
@@ -338,7 +338,7 @@ public:
     }
 };
 
-//根据有序链表新建二叉搜索树；（难点在于怎么找到链表的中点）
+//4 根据有序链表新建二叉搜索树；（难点在于怎么找到链表的中点）
 class Solution {
     ListNode* get_mid_element(ListNode* head, ListNode* end) {  //链表的中点需要单独一个函数来遍历；
         if (head == end) return nullptr;
@@ -360,6 +360,40 @@ public:
     }
 };
 
+//5 不仅仅是新建树使用返回值，然后前序遍历那样子的遍历，删除节点也需要返回值；
+//删除二叉搜索树中值为key的节点；                                         //不用前继节点，使用返回值就可以进行删除操作
+class Solution {
+    TreeNode* helper(TreeNode* root, int key) {
+        if (!root) return nullptr;
+        if (root->val > key)
+            root->left = helper(root->left, key);
+        else if (root->val < key) 
+            root->right = helper(root->right, key);
+        else {
+            TreeNode* tmp = root;
+            if (!root->left) {                  //主要分三种情况，如果被删除左节点为空，就直接等于右节点；
+                delete tmp;
+                return root->right;
+            }
+            if (!root->right) {                 //如果右节点为空，则直接等于左节点；
+                delete tmp;
+                return root->left;
+            }
+            else {
+                TreeNode* right = root->right;
+                while (right->left) right = right->left;    //如果左右节点都不为空，将右子树的最左节点和本节点交换，将被删除的节点放到最后，最后节点的删除则使用上面的方法；
+                swap(right->val, root->val);
+                root->right = helper(root->right, key);
+            }
+        }
+        return root;                        //最为关键的是返回值的设计，其设计要么返回自己，代表删除的不是自己，要么不是自己，代表删除的是自己；
+        
+    }
+public:
+    TreeNode* deleteNode(TreeNode* root, int key) {
+        return helper(root, key);
+    }
+};
 /*************************************** 前序遍历的算法题 *************************************/
 //使用前序遍历得到所有的路径
 class Solution {
