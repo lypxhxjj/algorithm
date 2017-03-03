@@ -394,6 +394,52 @@ public:
         return helper(root, key);
     }
 };
+
+//6  创建树和遍历树的综合体：二叉搜索树的序列化和反序列化
+class Codec {
+    void preorder(TreeNode* root, stringstream& result)     //二叉树根据前序和中序就可以确定，所以使用前序就可以；
+    {
+        if (!root) return;
+        result << root->val << " ";                         //使用流来保存不断加的字符串，感觉类似于String和StringBuffer；并以空格来分；
+        preorder(root->left, result);
+        preorder(root->right, result);
+    }
+    
+    vector<int> string_to_int(const string& str) {          //以空格来分的结果是，使用stringstream >>很轻易的得到数字；
+        int num = count(str.begin(), str.end(), ' ');
+        stringstream ss(str);
+        vector<int> result(num);
+        for (int i = 0; i < num; ++i)                       //由于不晓得>>多少次，所以还是需要提前遍历一遍；
+            ss >> result[i];
+        return result;
+    }
+    
+    template<class Iter>
+    TreeNode* string_to_tree(Iter begin, Iter end) 
+    {
+        if (begin == end) return nullptr;
+        TreeNode* root = new TreeNode(*begin);
+        Iter it = lower_bound(begin + 1, end, *begin);      //如果知道二叉搜索树，只知道前序遍历 + lower_bound就可以完整的构造树了；
+        root->left = string_to_tree(begin + 1, it);
+        root->right = string_to_tree(it, end);
+        return root;
+        
+    }
+public:
+
+    // Encodes a tree to a single string.
+    string serialize(TreeNode* root) {
+        stringstream result;
+        preorder(root, result);
+        return result.str();
+    }
+
+    // Decodes your encoded data to tree.
+    TreeNode* deserialize(string data) {
+        vector<int> nums = string_to_int(data);
+        return string_to_tree(nums.begin(), nums.end());
+    }
+};
 /*************************************** 前序遍历的算法题 *************************************/
 //使用前序遍历得到所有的路径
 class Solution {
