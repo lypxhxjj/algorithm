@@ -1,0 +1,14 @@
+//1  遍历数组时的当前值，前面的结果加上当前值，还是从当前值重新开始；
+//问题：和最大的最长子串问题：
+class Solution {
+public:
+    int maxSubArray(vector<int>& nums) {
+        int result = INT_MIN, sum = 0;
+        for (int i = 0; i < nums.size(); ++i) {
+            if (sum > 0) sum += nums[i];
+            else sum = nums[i];
+            if (result < sum) result = sum;
+        }
+        return result;
+    }
+};
