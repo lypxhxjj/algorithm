@@ -48,3 +48,36 @@ public:
         return res;
     }
 };
+
+//难题系列：满满的都是技巧啊
+/*
+You are given a string, s, and a list of words, words, that are all of the same length. Find all starting indices of substring(s) in s that is a concatenation of each word in words exactly once and without any intervening characters.
+
+For example, given:
+s: "barfoothefoobarman"
+words: ["foo", "bar"]
+
+You should return the indices: [0,9].
+(order does not matter).
+*/
+class Solution {
+public:
+    vector<int> findSubstring(string s, vector<string>& words) {
+        vector<int> res;
+        if (s.size() == 0 || words.size() == 0) return res;
+        unordered_map<string, int> map;         //不按顺序来的使用hashmap;
+        int size1 = words.size();
+        int size2 = words[0].size();
+        for (string& str : words)
+            map[str]++;
+        for (int i = 0; i < (int)s.size() - size1 * size2 + 1; ++i) {   //涉及到size()的运算，都要加上（int）强制转化；
+            unordered_map<string, int> map1;                            //第二个hashmap的用途是：与第一个比较看是否相等！！！
+            for (int j = i; j < i + size1 * size2; j += size2) {
+                string tmp = s.substr(j, size2);                        //字符串substr函数，参数是起始位置和大小；
+                map1[tmp]++;
+            }
+            if (map1 == map) res.push_back(i);
+        }
+        return res;
+    }
+};
