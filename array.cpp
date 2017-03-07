@@ -25,3 +25,50 @@ public:
         return {set.begin(), set.end()};
     }
 };
+
+//数组的第二种方式：采用函数来解决一个一个的小问题：数独是否合法，两个有序数组的中位数
+class Solution {
+    bool row_check(vector<vector<char>>&board, int i) {
+        unordered_set<char> set;
+        for (char ch : board[i]) {
+            if (ch == '.') continue;
+            else if (set.find(ch) != set.end()) return false;
+            else set.insert(ch);
+        }
+        return true;
+    }
+    bool col_check(vector<vector<char>>& board, int j) {
+        unordered_set<char> set;
+        for (int i = 0; i < board.size(); ++i) {
+            if (board[i][j] == '.') continue;
+            else if (set.find(board[i][j]) != set.end()) return false;
+            else set.insert(board[i][j]);
+        }
+        return true;
+    }
+    bool squre_check(vector<vector<char>>& board, int i, int j) {
+        unordered_set<char> set;
+        for (int k = 0; k < 3; k++) {
+            for (int m = 0; m < 3; m++) {
+                char ch = board[i + k][j + m];
+                if (ch == '.') continue;
+                else if (set.find(ch) != set.end()) return false;
+                else set.insert(ch);
+            }
+        }
+        return true;
+        
+    }
+public:
+    bool isValidSudoku(vector<vector<char>>& board) {
+        for (int i = 0; i < board.size(); ++i)
+            if(!row_check(board, i)) return false;
+        for (int i = 0; i < board[0].size(); ++i)
+            if (!col_check(board, i)) return false;
+        for (int i = 0; i < board.size(); i += 3) {
+            for (int j = 0; j < board.size(); j += 3)
+                if (!squre_check(board, i, j)) return false;
+        }
+        return true;
+    }
+};
