@@ -49,6 +49,29 @@ public:
     }
 };
 
+//hashmap保存复杂数据结构体：寻找同一字符串的异构体
+class Solution {
+public:
+    vector<vector<string>> groupAnagrams(vector<string>& strs) {
+        unordered_map<string, vector<string>> map;      //key保存的是排序好的字符串，value代表的是这个字符串同分异构体；
+        for (int i = 0; i < strs.size(); ++i) {
+            string str = strs[i];
+            sort(str.begin(), str.end());
+            if (map.find(str) != map.end()) {
+                map[str].push_back(strs[i]);
+            }
+            else {
+                map[str] = {strs[i]};
+            }
+        }
+        vector<vector<string>> res;
+        for (auto m : map) {
+            res.push_back(m.second);
+        }
+        return res;
+        
+    }
+};
 //难题系列：满满的都是技巧啊
 /*
 You are given a string, s, and a list of words, words, that are all of the same length. Find all starting indices of substring(s) in s that is a concatenation of each word in words exactly once and without any intervening characters.
