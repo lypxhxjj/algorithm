@@ -72,3 +72,43 @@ public:
         return true;
     }
 };
+
+//由此题引出的，自动填充数独的方法：回溯法
+class Solution {
+    bool is_valid(vector<vector<char>>& board, int i, int j) {
+        for (int k = 0; k < board.size(); ++k)
+            if (i != k && board[k][j] == board[i][j]) return false; //检验当前点是否已经存在，遍历一行就可以了；
+        for (int m = 0; m < board.size(); ++m) 
+            if (j != m && board[i][m] == board[i][j]) return false;
+        int point1 = i / 3 * 3;
+        int point2 = j / 3 * 3;                         //回到3的倍数的点，先除以3再乘以3；
+        for (int k = point1; k < point1 + 3; ++k) {
+            for (int m = point2; m < point2 + 3; ++m) {
+                if (k ==i && m == j) continue;
+                if (board[k][m] == board[i][j]) return false;
+            }
+        }
+        return true;
+    }
+    
+    bool helper(vector<vector<char>>& board, int i, int j) {
+        if (i == 9) return true;    
+        if (j == 9) {
+            return helper(board, i + 1, 0);             //二维数组回溯的方法是，i和j来处理一个一个的元素；！！！！
+        }
+        if (board[i][j] != '.') {
+            return helper(board, i, j + 1);
+        }
+        for (int k = 1; k < 10; ++k) {                  //把当前是点的点分别设置数字；
+            board[i][j] = k + '0';
+            if (is_valid(board, i, j))                  //如果满足条件，其会一直往下走，直到本函数第一行的true；
+                if (helper(board, i, j + 1)) return true;   //如果满足条件，就继续向下递归，如果某个过程递归失败了，就表示当前值不可以，也需要恢复原始状态，如果成功了，应该告诉前面的递归成功了；
+            board[i][j] = '.';                          //如果不满足条件，恢复原始状态；
+        }
+        return false;
+    }
+public:
+    void solveSudoku(vector<vector<char>>& board) {
+        helper(board, 0, 0);
+    }
+};
