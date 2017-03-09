@@ -131,7 +131,7 @@ class Solution {
         
         for (int j = i; j < nums.size(); ++j) {         //当前位置一个循环
             swap(nums[i], nums[j]);
-            if (nums[i] % (i + 1) == 0 || (i + 1) % nums[i] == 0)   //循环内部是条件判断，如果满足当前条件，才可以继续递归；
+            if (nums[i] % (i + 1) == 0 || (i + 1) % nums[i] == 0)   //循环内部是条件判断，如果满足当前条件，才可以继续递归；(此题这里出错了)
                  helper(nums, i + 1, res);
             swap(nums[i], nums[j]);                             //否则的话恢复现场，进行下一轮循环；
         }
