@@ -1,0 +1,1 @@
+1  对skiplist进行深拷贝的时候，要等random赋值好之后再进行拆分；赋值random的时候，要判断random不为空；
