@@ -112,3 +112,39 @@ public:
         helper(board, 0, 0);
     }
 };
+
+//相比之下，这种回溯法解题方法值得提倡
+//题目是：
+/*
+Suppose you have N integers from 1 to N. We define a beautiful arrangement as an array that is constructed by these N numbers successfully if one of the following is true for the ith position (1 ≤ i ≤ N) in this array:
+
+The number at the ith position is divisible by i.
+i is divisible by the number at the ith position.
+Now given N, how many beautiful arrangements can you construct?
+*/
+class Solution {
+    void helper(vector<int>& nums, int i, int& res) {
+        if (i == nums.size()) {                         //同样是遍历数组，到达最后的是符合题意的；
+            res++;
+            return;
+        }
+        
+        for (int j = i; j < nums.size(); ++j) {         //当前位置一个循环
+            swap(nums[i], nums[j]);
+            if (nums[i] % (i + 1) == 0 || (i + 1) % nums[i] == 0)   //循环内部是条件判断，如果满足当前条件，才可以继续递归；
+                 helper(nums, i + 1, res);
+            swap(nums[i], nums[j]);                             //否则的话恢复现场，进行下一轮循环；
+        }
+    }                                                           //至于返回值，能到达末尾的都是不符号条件的，如果res在第二行++了，这里就不需要了；
+public:
+    int countArrangement(int N) {
+        int res = 0;
+        vector<int> nums;
+        nums.reserve(N);
+        for (int i = 1; i <= N; ++i)
+            nums.push_back(i);
+        helper(nums, 0, res);
+        return res;
+        
+    }
+};
