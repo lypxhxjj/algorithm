@@ -105,3 +105,43 @@ public:
         return {res.begin(), res.end()};
     }
 };
+
+//回溯4：获取所有排列：最基本的回溯法；
+class Solution {
+    void helper(vector<vector<int>>& res, vector<int> tmp, int i) {
+        if (i == tmp.size()) {
+            res.push_back(tmp);
+            return;
+        }
+        for (int j = i; j < tmp.size(); ++j) {  //必须从i开始，不然可能会取不到0；
+            swap(tmp[i], tmp[j]);
+            helper(res, tmp, i + 1);
+            swap(tmp[i], tmp[j]);
+        }
+    }
+public:
+    vector<vector<int>> permute(vector<int>& nums) {
+        vector<vector<int>> result;
+        helper(result, nums, 0);
+        return result;
+        
+    }
+};  
+
+//如果data有重复，但是允许结果有重复，使用set保存结果（因为可能两个数相邻是一样的情况下会造成重复）
+class Solution {
+    void helper(set<vector<int>>& res, vector<int> tmp, int i) {
+        if (i == tmp.size()) res.insert(tmp);
+        for (int j = i; j < tmp.size(); ++j) {
+            swap(tmp[i], tmp[j]);
+            helper(res, tmp, i + 1);
+            swap(tmp[i], tmp[j]);
+        }
+    }
+public:
+    vector<vector<int>> permuteUnique(vector<int>& nums) {
+        set<vector<int>> set;
+        helper(set, nums ,0);
+        return {set.begin(), set.end()};
+    }
+};
