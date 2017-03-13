@@ -145,3 +145,31 @@ public:
         return {set.begin(), set.end()};
     }
 };
+
+//回溯法5：利用排列来解题
+class Solution {
+    void helper(vector<int>& nums, int i, int& res) {
+        if (i == nums.size()) {
+            res++;
+            return;
+        }
+        
+        for (int j = i; j < nums.size(); ++j) {
+            swap(nums[i], nums[j]);
+            if (nums[i] % (i + 1) == 0 || (i + 1) % nums[i] == 0)   //与排列的差别在于，这个地方满足条件才可以继续向下走，否则就直接回溯；
+                 helper(nums, i + 1, res);
+            swap(nums[i], nums[j]);
+        }
+    }
+public:
+    int countArrangement(int N) {
+        int res = 0;
+        vector<int> nums;
+        nums.reserve(N);
+        for (int i = 1; i <= N; ++i)
+            nums.push_back(i);
+        helper(nums, 0, res);
+        return res;
+        
+    }
+};
