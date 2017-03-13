@@ -81,3 +81,27 @@ public:
         return res;
     }
 };
+//上一题的换种问法：数据可以重复，但是结果不可以重复，（上题是结果可以重复，数据不重），那就只能使用先排序和set代替push_back了；
+class Solution {
+    void backStracking(vector<int>& data, int target, int level, int add, set<vector<int>>& res, vector<int>& tmp) {
+        if (add > target) return;
+        if (add == target) {
+            res.insert(tmp);
+            return;
+        }
+        
+        for (int i = level; i < data.size(); ++i) {
+            tmp.push_back(data[i]);
+            backStracking(data, target, i + 1, add + data[i], res, tmp);
+            tmp.pop_back();
+        }
+    }
+public:
+    vector<vector<int>> combinationSum2(vector<int>& candidates, int target) {
+        sort(candidates.begin(), candidates.end());
+        set<vector<int>> res;
+        vector<int> tmp;
+        backStracking(candidates, target, 0, 0, res, tmp);
+        return {res.begin(), res.end()};
+    }
+};
