@@ -213,7 +213,7 @@ class Solution {
     }
 public:
     vector<string> letterCombinations(string digits) {
-        if (digits.size() == 0) return {};
+        if (digits.size() == 0) return {};              //这里需要注意，如果字符串为空，返回的是{}。而不是{“”}；
         vector<string> const_str{"abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz"}; //有很多常量，可以定义一个字符串数组；
         vector<string> res;
         string tmp;
