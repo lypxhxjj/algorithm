@@ -221,3 +221,39 @@ public:
         return res;
     }
 };
+//回溯法7  匹配包含点的字符串 //将字符串中的点替换掉之后进行比较
+class WordDictionary {
+    unordered_set<string> set;
+    
+    bool backStracking(string& word, int level) {
+        if (level == word.size()) 
+            return set.find(word) != set.end();
+            
+        if (word[level] != '.') {
+            if (backStracking(word, level + 1)) return true;    //小错误，最开始的没有加{}，导致ifelse匹配出错；
+        }
+        else {
+            for (int i = 0; i < 26; ++i) {              //就是挨个替换；
+                word[level] = 'a' + i;
+                if (backStracking(word, level + 1)) return true;    //使用返回值的含义是，在递归之后如果需要返回，就直接返回了；
+                word[level] = '.';
+            }
+        }
+        return false;
+    } 
+public:
+    /** Initialize your data structure here. */
+    WordDictionary() {
+        
+    }
+    
+    /** Adds a word into the data structure. */
+    void addWord(string word) {
+        set.insert(word);
+    }
+    
+    /** Returns if the word is in the data structure. A word could contain the dot character '.' to represent any one letter. */
+    bool search(string word) {
+        return backStracking(word, 0);
+    }
+};
