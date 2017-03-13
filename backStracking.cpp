@@ -55,3 +55,29 @@ public:
         return res;
     }
 };
+
+//回溯3：找到集合中加和为target的一组数，允许重复；
+class Solution {
+    void backStracking(vector<int>& data, int target, int add, int level, vector<int>& tmp, vector<vector<int>>& res) {
+        if (add > target) return;                           //退出条件；
+        if (add == target) {                                //push_back条件；
+            res.push_back(tmp);
+            return;
+        }
+        
+        for (int i = level; i < data.size(); ++i) {         //由于每个数都可能加进来，所以使用循环；
+            tmp.push_back(data[i]);                 
+            backStracking(data, target, add + data[i], i, tmp, res);
+            tmp.pop_back();                                 //vector只能使用先push_back然后再pop_back的方法，string可以使用临时字符串；
+        }
+        
+        
+    }                                                       //此题保证不重复的做法是，循环是从level开始而不是从0开始；
+public:
+    vector<vector<int>> combinationSum(vector<int>& candidates, int target) {
+        vector<vector<int>> res;
+        vector<int> tmp;
+        backStracking(candidates, target, 0, 0, tmp, res);
+        return res;
+    }
+};
