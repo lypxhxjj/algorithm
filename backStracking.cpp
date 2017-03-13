@@ -105,6 +105,30 @@ public:
         return {res.begin(), res.end()};
     }
 };
+//再来一个，1-9这几个数字里选k个，然后加和是n：
+class Solution {
+    void recursion(vector<vector<int>>& res, vector<int> tmp, int k, int n, int add, int m) {
+        if (tmp.size() > k || add > n) return;
+        if (tmp.size() == k && add == n) {
+            res.push_back(tmp);
+            return;
+        }
+        
+        for (int i = m; i < n && i <= 9; ++i) {     //随机选k个，那么就从m开始顺序向后选就可以了，选一个，push_back一个；
+            tmp.push_back(i);
+            recursion(res, tmp, k, n, add + i, i + 1);  //递归的时候能使用临时值就使用临时值，免得还得回到原来状态；
+            tmp.pop_back();
+        }
+    }
+public:
+    vector<vector<int>> combinationSum3(int k, int n) {
+        vector<vector<int>> res;
+        vector<int> tmp;
+        recursion(res, tmp, k, n, 0, 1);
+        return res;
+        
+    }
+};
 
 //回溯4：获取所有排列：最基本的回溯法；
 class Solution {
