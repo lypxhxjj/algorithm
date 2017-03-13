@@ -31,3 +31,27 @@ public:
         return strs;
     }
 };
+
+//回溯法2：n对括号的所有可能组合方式
+class Solution {
+    void backStracking(int left, int left_left, int right, vector<string>& res, string tmp) {
+        if (left == 0 && right == 0) {      //首先，如果到达了最后，就添加，这个不需要过滤条件；
+            res.push_back(tmp);
+            return;
+        }
+        if (left_left > 0) {                   //其次，有两种情况，加左边还是加右边，以及什么时候加左边什么时候加右边；两边加都可以的情况下，需要都加；
+            if (left) backStracking(left - 1, left_left + 1, right,res, tmp + "(");
+            backStracking(left, left_left - 1, right - 1, res, tmp + ")");          //在函数调用的时候调整tmp，可以减少回溯变回原来状态的步骤
+        }
+        else
+            backStracking(left - 1, left_left + 1, right,res, tmp + "(");
+    }
+public:
+    vector<string> generateParenthesis(int n) {
+        vector<string> res;
+        string tmp;
+        int left = n, left_left = 0, right = n;
+        backStracking(left, left_left, right, res, tmp);
+        return res;
+    }
+};
