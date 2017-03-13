@@ -197,3 +197,27 @@ public:
         
     }
 };
+
+//回溯法6  递归多少次的题：一组数组，对应手机字母的组合
+class Solution {
+    void backStracking(const string& digits, vector<string>& const_str, int level, vector<string>& res, string tmp) {
+        if (level == digits.size()) {
+            res.push_back(tmp);
+            return;
+        }
+        
+        int num = digits[level] - '0';
+        for (int i = 0; i < const_str[num - 2].size(); ++i) {               //此题是递归的次数也可能需要通过参数传递进来；
+            backStracking(digits, const_str, level + 1, res, tmp + const_str[num - 2][i]);
+        }
+    }
+public:
+    vector<string> letterCombinations(string digits) {
+        if (digits.size() == 0) return {};
+        vector<string> const_str{"abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz"}; //有很多常量，可以定义一个字符串数组；
+        vector<string> res;
+        string tmp;
+        backStracking(digits,const_str, 0, res, tmp);
+        return res;
+    }
+};
