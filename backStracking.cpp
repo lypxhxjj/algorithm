@@ -34,7 +34,7 @@ public:
 
 //回溯法2：n对括号的所有可能组合方式
 class Solution {
-    void backStracking(int left, int left_left, int right, vector<string>& res, string tmp) {
+    void backStracking(int left, int left_left, int right, vector<string>& res, string tmp) {   //一个一个加上去的，且结果有很多的这种，就要使用回溯
         if (left == 0 && right == 0) {      //首先，如果到达了最后，就添加，这个不需要过滤条件；
             res.push_back(tmp);
             return;
