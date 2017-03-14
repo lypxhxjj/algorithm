@@ -257,3 +257,38 @@ public:
         return backStracking(word, 0);
     }
 };
+
+//回溯法8，将字符串拆分成一个一个的回文：简单的回溯法，
+class Solution {
+    bool isPalindrome(const string& s) {
+        if (s.size() < 2) return true;
+        int i = 0, j = s.size() - 1;
+        while (i < s.size()) {
+            if (s[i] != s[j]) return false;
+            i++, j--;
+        }
+        return true;
+    }
+    void backStracking(string s, int level, vector<vector<string>>& res, vector<string>& tmp) {
+        if (s.size() == level) {
+            res.push_back(tmp);
+            return;
+        }
+        for (int i = level; i < s.size(); ++i) {
+            string s_tmp = s.substr(level, i - level + 1);
+            if (isPalindrome(s_tmp)) {
+                tmp.push_back(s_tmp);
+                backStracking(s, i + 1, res, tmp);  //满足条件的才往下走；
+                tmp.pop_back();                     //走完之后回溯到原来的状态；
+            }
+        }
+    }
+public:
+    vector<vector<string>> partition(string s) {
+        if (s.size() == 0) return {};
+        vector<vector<string>> res;
+        vector<string> tmp;
+        backStracking(s, 0, res, tmp);
+        return res;
+    }
+};
