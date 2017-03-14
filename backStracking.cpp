@@ -283,12 +283,34 @@ class Solution {
             }
         }
     }
-public:
+public: 
     vector<vector<string>> partition(string s) {
         if (s.size() == 0) return {};
         vector<vector<string>> res;
         vector<string> tmp;
         backStracking(s, 0, res, tmp);
         return res;
+    }
+};
+
+//回溯法9：求子集，数据集中有重复，但是结果不能有重复（排序之后不能有重复）
+class Solution {
+    void generate(set<vector<int>>& res, vector<int>& nums, vector<int> tmp, int i) {
+        if (i == nums.size()) {
+            res.insert(tmp);
+            return;
+        }
+        generate(res, nums, tmp, i + 1);    //加是一种情况，不加是一种情况；
+        tmp.push_back(nums[i]);
+        generate(res, nums, tmp, i + 1);
+    }
+public:
+    vector<vector<int>> subsetsWithDup(vector<int>& nums) {
+        sort(nums.begin(), nums.end());     //竟然还需要sort； 结果要求排序后不重复，那就先排序；
+        set<vector<int>> res;
+        vector<int> tmp;
+        generate(res, nums, tmp, 0);
+        return {res.begin(), res.end()};
+        
     }
 };
