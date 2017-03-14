@@ -312,5 +312,29 @@ public:
         generate(res, nums, tmp, 0);
         return {res.begin(), res.end()};
         
+    } 
+}；
+//从一个二维数组中到单词，用过的就不能再用了：二维矩阵第一题
+class Solution {
+    bool search(vector<vector<char>>& board, vector<vector<int>>& flags ,int i, int j, const string& word, int m) {
+        if (m == word.size()) return true;
+        if (i < 0 || j < 0 || i >= board.size() || j >= board[0].size() || flags[i][j] || board[i][j] != word[m]) return false;     //一并返回false；
+        flags[i][j] = true;
+        bool res = search(board, flags, i + 1, j , word, m + 1) || search(board, flags, i - 1, j, word, m + 1)
+                    || search(board, flags, i, j + 1, word, m + 1) || search(board, flags, i, j - 1, word, m + 1);  //回溯法每个都要走一遍，然后有一个成功了就可以了；
+        flags[i][j] = false;
+        return res;
+    }
+public:
+    bool exist(vector<vector<char>>& board, string word) {
+        if (board.size() == 0) return false;
+        vector<vector<int>> flags(board.size(), vector<int>(board[0].size(), 0));   //回溯法操作矩阵，取一个二维标记辅助数组，注意初始化使用括号，而不能使用大括号，大括号不允许缩窄，使得出现不可预料的错误；
+        for (int i = 0; i < board.size(); ++i) {
+            for (int j = 0; j < board[0].size(); ++j) {
+                if (search(board, flags, i, j, word, 0))
+                    return true;
+            }
+        }
+        return false;
     }
 };
