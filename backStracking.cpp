@@ -338,3 +338,24 @@ public:
         return false;
     }
 };
+//求n以内的k个数的组合，排序后不允许重复；
+class Solution {
+    void recursion(vector<vector<int>>& res, vector<int>& tmp, int n, int m, int k) {
+        if (tmp.size() == k) {
+            res.push_back(tmp);
+            return;
+        }
+        for (int i = m; i < n; ++i) {
+            tmp.push_back(i + 1);
+            recursion(res, tmp, n, i + 1, k);   //每个数加或者不加，因为要求排序后无重复，所以遍历的时候，从m开始顺序向后就行了。按全排列的方式是不可以的；
+            tmp.pop_back();
+        }
+    }
+public:
+    vector<vector<int>> combine(int n, int k) {
+        vector<vector<int>> res;
+        vector<int> tmp;
+        recursion(res, tmp, n, 0, k);
+        return res;
+    }
+};
