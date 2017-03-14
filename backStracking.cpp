@@ -359,3 +359,25 @@ public:
         return res;
     }
 };
+
+//字符串匹配的题，满满的都是技巧；
+//技巧1：判断两个是否都为空，那么判断一个就好了，另一个在return上；//和判断树是否都为空一样；
+//技巧2：*与前面的字符有关，所以需要考虑后面一个字符，可以先考虑是不是最后一个字符，然后判断下一个字符是不是*；
+//技巧3：如果下一个字符是*，那么*可以代表0个，也可以代表无数个，所以代表0个就是第二个数组索引加二，这是第一种情况，还可能是第一个数组对应位置和第二个数组相同时，第一个数组不断加一，而第二个数组不动；
+//技巧
+class Solution {
+    bool backTracking(const string& s, const string& p, int level1, int level2) {
+        if (level2 == p.size()) return level1 == s.size();
+        if (p.size() == level2 + 1) return (level1 == s.size() - 1) && (p[level2] == s[level1] || p[level2] == '.');
+        
+        if (p[level2 + 1] == '*') {
+            return backTracking(s, p, level1, level2 + 2) || 
+                ((s[level1] == p[level2] || p[level2] == '.') && s.size() > level1 && backTracking(s, p, level1 + 1, level2));
+        }
+        return (s[level1] == p[level2] || p[level2] == '.') && backTracking(s, p, level1 + 1, level2 + 1);
+    }
+public:
+    bool isMatch(string s, string p) {
+        return backTracking(s, p, 0, 0);
+    }
+};
