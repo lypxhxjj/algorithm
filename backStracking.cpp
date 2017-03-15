@@ -513,3 +513,38 @@ public:
         return res;
     }
 };
+
+//一个二维矩阵里面找多个单词；此题里面有陷阱；
+class Solution {
+    bool find_helper(vector<vector<char>>& board, vector<vector<int>>& flag, const string& str, int level, int row, int col) {
+        if (level == str.size()) return true;
+        if (row < 0 || col < 0 || row >= board.size() || col >= board[0].size() || flag[row][col] == 1 || board[row][col] != str[level]) return false;
+        flag[row][col] = 1;
+        bool res;
+        res = find_helper(board, flag, str, level + 1, row + 1, col) || find_helper(board, flag, str, level + 1, row, col + 1) || find_helper(board, flag, str, level + 1, row - 1, col) || find_helper(board, flag, str, level + 1, row, col - 1);
+        flag[row][col] = 0;
+        return res;
+    }
+    
+    bool helper(vector<vector<char>>& board, const string& str) {
+        for (int i = 0; i < board.size(); ++i) {                    //单词可能每个从哪个部位开始，所以需要遍历二维矩阵；
+            for (int j = 0; j < board[0].size(); ++j) {
+                vector<vector<int>>  flag (board.size(), vector<int>(board[0].size(), 0));  //标志数组每次都要清零，用前定义；
+                if (find_helper(board, flag, str, 0 ,i, j))
+                    return true;
+            }
+        }
+        return false;
+    }
+public:
+    vector<string> findWords(vector<vector<char>>& board, vector<string>& words) {
+
+        set<string> res;
+        for (auto word : words) {
+            if (res.find(word) != res.end()) continue;
+            if (helper(board, word))
+                res.insert(word);
+        }
+        return {res.begin(), res.end()};
+    }
+};
