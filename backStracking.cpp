@@ -419,3 +419,46 @@ public:
         return res;
     }
 };
+
+//数独求解；
+class Solution {
+    bool check(vector<vector<char>>& board, int i, int j) {
+        for (int m = 0; m < board.size(); ++m) {
+            if (m != i && board[m][j] == board[i][j]) return false;
+        }
+        for (int m = 0; m < board[0].size(); ++m) {
+            if (m != j && board[i][j] == board[i][m]) return false;
+        }
+        int m = i / 3 * 3, n = j / 3 * 3;       //回到3的倍数上去；
+        for (int p = 0; p < 3; ++p) {
+            for (int q = 0; q < 3; ++q) {
+                if (p + m == i && q + n == j) continue;
+                if (board[i][j] == board[m + p][n + q])
+                    return false;
+            }
+        }
+        return true;
+    }
+    bool backStracking(vector<vector<char>>& board, int row, int col) { 
+        if (row == board.size()) return true;               //矩阵要挨个处理，所以可以采取这种方式；
+        if (col == board[0].size())  {
+            return backStracking(board, row + 1, 0);        //求的只是一个解，那么只要其返回true，那么各层递归都开始return，即凡是有递归的地方，使用if + return;
+        }
+        if (board[row][col] != '.') {
+            return backStracking(board, row, col + 1);
+        }
+        else {
+            for (int i = 1; i < 10; ++i) {
+                board[row][col] = i + '0';
+                if (check(board, row, col))     //符合条件的时候向下走；
+                    if (backStracking(board, row, col + 1)) return true;
+                board[row][col] = '.';          //能走到这，说明不符合条件，那么恢复原来状态；
+            }
+        }
+        return false;
+    }
+public:
+    void solveSudoku(vector<vector<char>>& board) {
+        backStracking(board, 0, 0);
+    }
+};
