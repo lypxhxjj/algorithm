@@ -381,3 +381,41 @@ public:
         return backTracking(s, p, 0, 0);
     }
 };
+
+//八皇后的要求是，每行Q的位置不在同一列，斜线位置也不可以；
+class Solution {
+    bool check(vector<string>& tmp, vector<int>& location, int j) {
+        auto it = find(location.begin(), location.end(), location[location.size() - 1]);
+        if (it != location.end() - 1) return false;
+        
+        int last = location.size() - 1;
+        for (int i = 0; i < location.size() - 1; ++i) {
+            if (abs(location[i] - location[last]) == abs(i - last)) //不能处于斜线位置，那么就需要一个单独的vector来保存以前在哪个位置存储的；
+                return false;
+        }
+        return true;
+    }
+    void generate(vector<vector<string>>& res, vector<string> tmp, vector<int>& location, int level, int n) {
+        if (level == n) {
+            res.push_back(tmp);
+            return;
+        }
+        for (int i = 0; i < tmp[level].size(); ++i) {       //矩阵第二题，使用一个for循环挨个处理每一行的思路；
+            tmp[level][i] = 'Q';
+            location.push_back(i);
+            if (check(tmp, location, i))
+                generate(res, tmp, location, level + 1, n); //思路就是最简单的回溯法，取完然后放回去就好了；
+            tmp[level][i] = '.';
+            location.pop_back();
+        }
+    }
+public:
+    vector<vector<string>> solveNQueens(int n) {
+       string str(n, '.');
+        vector<string> tmp(n, str);
+         vector<vector<string>> res;
+         vector<int> location;
+        generate(res, tmp, location, 0, n);
+        return res;
+    }
+};
