@@ -489,3 +489,27 @@ public:
         return res;
     }
 };
+//另一种解法是，遍历字典，字符串太长的话，就遍历字典，然后去比较；
+class Solution {
+    void backStracking(const string& s, vector<string>& set, int level, vector<string>& res, string tmp) {
+        if (level == s.size()) {
+            res.push_back({tmp.begin() + 1, tmp.end()});
+            return;
+        }
+        
+        for (auto str : set) {
+            if (s.size() - level < str.size()) continue;
+            string ss = s.substr(level, str.size());
+            if (ss == str) {
+                backStracking(s, set, level + ss.size(), res, tmp + " " + ss);
+            }
+        } 
+    }
+public:
+    vector<string> wordBreak(string s, vector<string>& wordDict) {
+        vector<string> res;
+        string tmp;
+        backStracking(s, wordDict, 0, res, tmp);
+        return res;
+    }
+};
