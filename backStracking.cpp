@@ -462,3 +462,30 @@ public:
         backStracking(board, 0, 0);
     }
 };
+
+//将字符串s根据字典里的字符串组成一个句子（添加空格）//此种解法会超时；
+class Solution {
+    void backStracking(const string& s, unordered_set<string>& set, int level, vector<string>& res, string tmp) {
+        if (level == s.size()) {
+            res.push_back({tmp.begin() + 1, tmp.end()});
+            return;
+        }
+        
+        for (int i = level + 1; i <= s.size(); ++i) {   //这里出错来着，i既然从level + 1开始，那么边界条件就应该是s.size();
+            string str = s.substr(level, i - level);        //比较简单的回溯；
+            if (set.find(str) != set.end()) {
+                backStracking(s, set, i, res, tmp + " " + str);
+            }
+        }
+    }
+public:
+    vector<string> wordBreak(string s, vector<string>& wordDict) {
+        unordered_set<string> set;
+        for (auto str : wordDict)
+            set.insert(str);
+        vector<string> res;
+        string tmp;
+        backStracking(s, set, 0, res, tmp);
+        return res;
+    }
+};
