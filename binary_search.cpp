@@ -48,3 +48,18 @@ public:
         return {};
     }
 };
+
+//实现lower_bound，end = mid是因为那种情况end也可能是解；
+class Solution {
+public:
+    int searchInsert(vector<int>& nums, int target) {
+        int begin = 0, end = nums.size();
+        while (begin < end) {                           //查找嘛，所以使用<；
+            int mid = begin + (end - begin) / 2;
+            if (nums[mid] == target) end--;
+            else if (nums[mid] > target) end = mid;     //重点在end = mid，因为此时mid可能是解；
+            else begin = mid + 1;
+        }
+        return begin;
+    }
+};
