@@ -154,7 +154,7 @@ public:
         while (begin < end) {
             int mid = begin + (end - begin) / 2;
             int cnt = count_if(nums.begin(), nums.end(), bind2nd(less<int>(), mid + 1));    //二分查找 + 每次遍历一遍数组，此时复杂度才o(nlogn)
-            if (cnt > mid) end = mid;
+            if (cnt > mid) end = mid;                       //count_if用的很牛逼啊
             else begin = mid + 1;       //二分查找的最基本模型；
         }
         return begin;
