@@ -126,3 +126,22 @@ public:
         return res;
     }
 };
+
+//找到处于当前区间右边的索引，由于是索引，所以需要使用map，思路比较简单；
+class Solution {
+public:
+    vector<int> findRightInterval(vector<Interval>& intervals) {
+        map<int, int> lefts;
+        for (int i = 0; i < intervals.size(); ++i) {
+            lefts.insert({intervals[i].start, i});
+        }
+        vector<int> res;
+        res.reserve(intervals.size());
+        for (auto interval : intervals) {
+            auto it = lefts.lower_bound(interval.end);
+            if (it == lefts.end()) res.push_back(-1);
+            else res.push_back((*it).second);
+        }
+        return res;
+    }
+};
