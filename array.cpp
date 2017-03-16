@@ -72,79 +72,23 @@ public:
         return true;
     }
 };
-
-//由此题引出的，自动填充数独的方法：回溯法
+//两个数组中找到重复数字：两个方法，（hashmap） + （排序+两个指针）；
 class Solution {
-    bool is_valid(vector<vector<char>>& board, int i, int j) {
-        for (int k = 0; k < board.size(); ++k)
-            if (i != k && board[k][j] == board[i][j]) return false; //检验当前点是否已经存在，遍历一行就可以了；
-        for (int m = 0; m < board.size(); ++m) 
-            if (j != m && board[i][m] == board[i][j]) return false;
-        int point1 = i / 3 * 3;
-        int point2 = j / 3 * 3;                         //回到3的倍数的点，先除以3再乘以3；
-        for (int k = point1; k < point1 + 3; ++k) {
-            for (int m = point2; m < point2 + 3; ++m) {
-                if (k ==i && m == j) continue;
-                if (board[k][m] == board[i][j]) return false;
+public:
+    vector<int> intersect(vector<int>& nums1, vector<int>& nums2) {
+        sort(nums1.begin(), nums1.end());
+        sort(nums2.begin(), nums2.end());
+        vector<int> result;
+        for (int i = 0, j = 0; i < nums1.size() && j < nums2.size();) {
+            if (nums1[i] == nums2[j]) {
+                result.push_back(nums1[i]);
+                ++i,++j;
             }
+            else if (nums1[i] < nums2[j])
+                ++i;
+            else
+                ++j;
         }
-        return true;
-    }
-    
-    bool helper(vector<vector<char>>& board, int i, int j) {
-        if (i == 9) return true;    
-        if (j == 9) {
-            return helper(board, i + 1, 0);             //二维数组回溯的方法是，i和j来处理一个一个的元素；！！！！
-        }
-        if (board[i][j] != '.') {
-            return helper(board, i, j + 1);
-        }
-        for (int k = 1; k < 10; ++k) {                  //把当前是点的点分别设置数字；
-            board[i][j] = k + '0';
-            if (is_valid(board, i, j))                  //如果满足条件，其会一直往下走，直到本函数第一行的true；
-                if (helper(board, i, j + 1)) return true;   //如果满足条件，就继续向下递归，如果某个过程递归失败了，就表示当前值不可以，也需要恢复原始状态，如果成功了，应该告诉前面的递归成功了；
-            board[i][j] = '.';                          //如果不满足条件，恢复原始状态；
-        }
-        return false;
-    }
-public:
-    void solveSudoku(vector<vector<char>>& board) {
-        helper(board, 0, 0);
-    }
-};
-
-//相比之下，这种回溯法解题方法值得提倡
-//题目是：
-/*
-Suppose you have N integers from 1 to N. We define a beautiful arrangement as an array that is constructed by these N numbers successfully if one of the following is true for the ith position (1 ≤ i ≤ N) in this array:
-
-The number at the ith position is divisible by i.
-i is divisible by the number at the ith position.
-Now given N, how many beautiful arrangements can you construct?
-*/
-class Solution {
-    void helper(vector<int>& nums, int i, int& res) {
-        if (i == nums.size()) {                         //同样是遍历数组，到达最后的是符合题意的；
-            res++;
-            return;
-        }
-        
-        for (int j = i; j < nums.size(); ++j) {         //当前位置一个循环
-            swap(nums[i], nums[j]);
-            if (nums[i] % (i + 1) == 0 || (i + 1) % nums[i] == 0)   //循环内部是条件判断，如果满足当前条件，才可以继续递归；(此题这里出错了)
-                 helper(nums, i + 1, res);
-            swap(nums[i], nums[j]);                             //否则的话恢复现场，进行下一轮循环；
-        }
-    }                                                           //至于返回值，能到达末尾的都是不符号条件的，如果res在第二行++了，这里就不需要了；
-public:
-    int countArrangement(int N) {
-        int res = 0;
-        vector<int> nums;
-        nums.reserve(N);
-        for (int i = 1; i <= N; ++i)
-            nums.push_back(i);
-        helper(nums, 0, res);
-        return res;
-        
+        return result;
     }
 };
