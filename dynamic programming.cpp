@@ -42,3 +42,19 @@ public:
         return dp[0];
     }
 };
+
+//求一个数组中可以跳着递增的最大子数组的大小；
+//思路1 是动态规划，保存一个临时数组，每次都向前遍历找到当前值的大小，最后选出一个最大值来；
+//以下的思路是：遍历一遍数组，使用一个辅助数组，如果此时的值大于所有值，就插入到最后，否则的话就更新当前值，思路巧妙，背吧
+class Solution {
+public:
+    int lengthOfLIS(vector<int>& nums) {
+        vector<int> tmp;
+        for (int num : nums) {
+            auto it = lower_bound(tmp.begin(), tmp.end(), num);
+            if (it == tmp.end()) tmp.push_back(num);
+            else *it = num;
+        }
+        return tmp.size();
+    }
+};
