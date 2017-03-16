@@ -79,3 +79,19 @@ public:
         return begin;
     }
 };
+//计算开方数：要求结果尽量小，计算mid时上取整；
+class Solution {
+public:
+    int mySqrt(int x) {
+        if (x < 0) return -1;
+        long long  begin = 0, end = x;
+        while (begin < end) {
+            long long mid = begin + (end - begin + 1) / 2;  //结果尽量小，需要上取整；
+            long long mul = mid * mid;
+            if (mul > x) end = mid - 1;
+            else if (mul < x) begin = mid;
+            else return mid;                                //等于的return出来，否则会出现死循环；
+        }
+        return begin;
+    }
+};
