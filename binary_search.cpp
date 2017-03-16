@@ -110,3 +110,19 @@ public:
         return begin;
     }
 };
+//加热器求半径的问题，这个题的解法值得研究研究；求半径时，处理的边界条件是左右各一个，如果是边界就用最大值代替；
+class Solution {
+public:
+    int findRadius(vector<int>& houses, vector<int>& heaters) {
+        sort(houses.begin(), houses.end());
+        sort(heaters.begin(), heaters.end());
+        int res = 0;
+        for (int house : houses) {
+            auto it = lower_bound(heaters.begin(), heaters.end(), house);   //lower_bound得到的是大于等于house的位置；，要找半径所以得向前找；
+            int res1 = (it == heaters.end()) ? INT_MAX : (*it - house);     //分别判断是不是最左值还是最右值，分别得出结果，然后取最大最小值；这个思路有点意思；
+            int res2 = (it == heaters.begin()) ? INT_MAX : (house - *--it);
+            res = max(res, min(res1, res2));
+        }
+        return res;
+    }
+};
