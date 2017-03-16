@@ -63,3 +63,19 @@ public:
         return begin;
     }
 };
+//猜数，原理完全一样，毕竟lower_bound；
+int guess(int num);
+
+class Solution {
+public:
+    int guessNumber(int n) {
+        int begin = 1, end = n;
+        while (begin < end) {                       //查找；
+            int mid = begin + (end - begin) / 2;
+            int result = guess(mid);
+            if (result > 0) begin = mid + 1;
+            else end = mid;                         //有可能是当前解哦
+        }
+        return begin;
+    }
+};
