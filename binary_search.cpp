@@ -145,3 +145,18 @@ public:
         return res;
     }
 };
+
+//找到重复数字，不允许改动数组；
+class Solution {
+public:
+    int findDuplicate(vector<int>& nums) {
+        int begin = 1, end = nums.size() - 1;
+        while (begin < end) {
+            int mid = begin + (end - begin) / 2;
+            int cnt = count_if(nums.begin(), nums.end(), bind2nd(less<int>(), mid + 1));    //二分查找 + 每次遍历一遍数组，此时复杂度才o(nlogn)
+            if (cnt > mid) end = mid;
+            else begin = mid + 1;       //二分查找的最基本模型；
+        }
+        return begin;
+    }
+};
