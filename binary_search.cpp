@@ -95,3 +95,18 @@ public:
         return begin;
     }
 };
+//找到第一个坏的，不能从n + 1结束，因为n + 1调用isBadVersion未定义；
+bool isBadVersion(int version);
+
+class Solution {
+public:
+    int firstBadVersion(int n) {
+        int begin = 0, end = n;
+        while (begin < end) {
+            int mid = begin + (end - begin) / 2;
+            if (!isBadVersion(mid)) begin = mid + 1;
+            else end = mid;
+        }
+        return begin;
+    }
+};
