@@ -145,7 +145,7 @@ public:
         return res;
     }
 };
-
+/************************************************* 不是很明显使用二分法的题 ***************************************/
 //找到重复数字，不允许改动数组；
 class Solution {
 public:
@@ -158,5 +158,35 @@ public:
             else begin = mid + 1;       //二分查找的最基本模型；
         }
         return begin;
+    }
+};
+
+//查找二维数组中第k小的数，二维数组从左向右，从上向下是有序的，不是蛇形有序；
+//此题最好的解法是使用优先队列，见数组专题，但是也可以使用二分查找；
+class Solution {
+public:
+    int kthSmallest(vector<vector<int>>& matrix, int k) {
+        int length = matrix.size();
+        int begin = matrix[0][0], end = matrix[length - 1][length - 1];     //二分查找新的思路，不管三七二十一，先找到最大值和最小值，取中点，然后看找到了没这样子；
+        while (begin < end) {
+            int mid = begin + (end - begin) / 2;
+            int cnt = count_cnt(matrix, mid);
+            if (cnt < k) begin = mid + 1;       //原本等于是可能是最优解，所以尽量凑到end = mid上去，而不是begin = mid上去；
+            else end = mid;
+        }
+        return begin;
+    
+    }
+    int count_cnt(vector<vector<int>>& matrix, int target) {    //用于找二维数组中比target数小的数据量，可以使用upper_bound直接求解；
+        int i = matrix.size() - 1, j = 0;
+        int res = 0;
+        while (i >= 0 && j < matrix[0].size()) {                //此处使用的是从左下角，依次遍历每一列，没一列的i上边的数都是比target小的，加起来就好了；
+            if (matrix[i][j] > target) --i;
+            else if (matrix[i][j] <= target) {
+                res += i + 1;
+                j++;
+            }
+        }
+        return res;
     }
 };
