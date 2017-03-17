@@ -183,6 +183,30 @@ public:
         return -1;
     }
 };
+
+//找到蛇形有序数组中的某个数是否存在，可以使用两步二分法，第一步在第一列找，第二步在找到的行找；
+//第一步无法使用lower_bound，所以得自己实现，两点，数组的最后一个元素的下一位置，也是可行解，end要放在那；第二点，lower_bound找到的是大于等于该树的点，
+//upper_bound找到的是大于该数的点；所以找完之后需要判断是结果怎么样，是最后一个元素的下一位置怎么办，不是前两者咋办；（begin需要减1）
+class Solution {
+public:
+    
+    bool searchMatrix(vector<vector<int>>& matrix, int target) {
+        if (matrix.size() == 0 || matrix[0].size() == 0) return false;
+        int begin = 0, end = matrix.size();         //自定义实现lower_bound需要注意end的取值；
+        while (begin < end) {
+            int mid = begin + (end - begin) / 2;
+            if (matrix[mid][0] >= target) end = mid;
+            else begin = mid + 1;
+        }
+        
+        if (begin != matrix.size() && matrix[begin][0] == target) return true;
+        else begin = begin == 0 ? 0: begin - 1;                                 //lower_bound实现后需要根据其意义，调整begin的位置；
+        auto it = lower_bound(matrix[begin].begin(), matrix[begin].end(), target);
+        if (it == matrix[begin].end()) return false;
+        if (*it == target) return true;
+        return false;
+    }
+};
 /************************************************* 不是很明显使用二分法的题 ***************************************/
 //找到重复数字，不允许改动数组；
 class Solution {
