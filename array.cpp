@@ -25,6 +25,35 @@ public:
         return {set.begin(), set.end()};
     }
 };
+//使用hashmap先保存两个数的和，这样可以将复杂度将为o（n ^ 2）;
+class Solution {
+public:
+    vector<vector<int>> fourSum(vector<int>& nums, int target) {
+        set<vector<int>> res;
+        unordered_map<int, vector<pair<int, int>>> map;             //hashmap装的是索引对；
+        for (int i = 0; i < nums.size(); ++i) {
+            for (int j = 0; j < nums.size(); ++j) {
+                if (i == j) continue;           
+                map[nums[i] + nums[j]].push_back({i, j});
+            }
+        }
+        for (int i = 0; i < nums.size(); ++i) {
+            for (int j = 0; j < nums.size(); ++j) {
+                int add = target - nums[i] - nums[j];
+                if (map.find(add) != map.end()) {
+                    for (pair<int, int> loc : map[add]) {
+                        if (i != j && i != loc.first && i != loc.second && j != loc.first && j != loc.second) { //不能重复；
+                            vector<int> tmp {nums[i], nums[j], nums[loc.first], nums[loc.second]};      //不能重复
+                            sort(tmp.begin(), tmp.end());
+                            res.insert(tmp);
+                        }
+                    }
+                }
+            }
+        }
+        return {res.begin(), res.end()};
+    }
+};
 
 //4个数求和的问题，都可以使用hashmap转化为o(n^2)的问题；
 class Solution {
