@@ -163,6 +163,7 @@ public:
 
 //查找二维数组中第k小的数，二维数组从左向右，从上向下是有序的，不是蛇形有序；
 //此题最好的解法是使用优先队列，见数组专题，但是也可以使用二分查找；
+//针对此题为什么一定有解在begin上，还不晓得为什么
 class Solution {
 public:
     int kthSmallest(vector<vector<int>>& matrix, int k) {
