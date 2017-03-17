@@ -161,6 +161,28 @@ public:
         return nums[begin];
     }
 };
+
+//旋转数组中找到某个数，此时向哪边走需要判断哪边是有序的，还是根据nums[mid]和nums[end]比较就好，根据有序的情况不一样分别考虑向左还是向右，一共四种情况，比较容易理解的；
+class Solution {
+public:
+    int search(vector<int>& nums, int target) {
+        int begin = 0, end = nums.size() - 1;
+        while (begin <= end) {                          //这个属于找到找不到的问题，所以使用等于；
+            int mid = begin + (end - begin) / 2;
+            if (nums[mid] == target) return mid;
+            if (nums[mid] < nums[end]) {                //需要先判断好哪边有序，然后再决定走哪边；
+                if (target < nums[mid] || target > nums[end]) end = mid - 1;
+                else begin = mid + 1;
+            }
+            else {
+                if (target > nums[mid] || target < nums[begin]) begin = mid + 1;
+                else end = mid - 1;
+            }
+            
+        }
+        return -1;
+    }
+};
 /************************************************* 不是很明显使用二分法的题 ***************************************/
 //找到重复数字，不允许改动数组；
 class Solution {
