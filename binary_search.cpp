@@ -191,3 +191,19 @@ public:
         return res;
     }
 };
+//找到数组中的极大值，遍历一遍数组肯定可以得到，但是使用二分法可以更快的得到，因为mid位置比相邻元素肯定有一个大的，那么这个大的可能是解，如果不是的话，那么它后面的数还有比它大的，最差还是最后一个元素的
+class Solution {
+public:
+    int findPeakElement(vector<int>& nums) {
+        int begin = 0;
+        int end = nums.size() - 1;
+        while (begin < end) {
+            int mid = begin + (end - begin) / 2;
+            if (mid == nums.size() - 1 || nums[mid] > nums[mid + 1]) //二分查找思路与前面一样的；
+                end = mid;
+            else 
+                begin = mid + 1;
+        }
+        return begin;
+    }
+};
