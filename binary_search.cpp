@@ -145,6 +145,22 @@ public:
         return res;
     }
 };
+//循环数组的问题，找到最小值，这种比找到某个值要简单，只需要nums[mid]和nums[end]比较就可以
+class Solution {
+public:
+    int findMin(vector<int>& nums) {
+        int begin = 0;
+        int end = nums.size() - 1;
+        while (begin < end) {
+            int mid = begin + (end - begin) / 2;
+            if (nums[mid] > nums[end])              //如果允许相等的话，就需要end--这个语句了
+                begin = mid  + 1;
+            else 
+                end = mid;
+        }
+        return nums[begin];
+    }
+};
 /************************************************* 不是很明显使用二分法的题 ***************************************/
 //找到重复数字，不允许改动数组；
 class Solution {
