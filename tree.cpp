@@ -151,6 +151,27 @@ public:
         return result;
     }
 };
+//二叉搜索树，第k小的数；
+class Solution {
+    void partial_inorder(TreeNode* root, int& k, bool& iscontinue, int& res) {
+        if (!root || iscontinue) return;
+        partial_inorder(root->left, k, iscontinue, res);
+        if (k-- == 1) {                         //所有的数据操作都在中序遍历的地方操作；
+            res = root->val;
+            iscontinue = true;
+            return;
+        }
+        partial_inorder(root->right, k, iscontinue, res);
+        
+    }
+public:
+    int kthSmallest(TreeNode* root, int k) {
+        int res;
+        bool iscontinue = false;
+        partial_inorder(root, k, iscontinue, res);
+        return res;
+    }
+};
 /**************************************** 后序遍历的问题 ********************************/
 /*  后序遍历处理的问题是：以任一个节点为根节点，与其下面所有的节点构成的树的性质
 */
