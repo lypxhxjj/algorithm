@@ -208,6 +208,18 @@ public:
         return false;
     }
 };
+
+//计算幂次，使用二分法，需要考虑的情况比较多，考虑负数时，需要单独考虑INT_MIN，因为这货加1还是它自己；
+class Solution {
+public:
+    double myPow(double x, int n) {
+        if (n == INT_MIN) return 1 / x * myPow(x, n + 1);   //INT_MIN;
+        if (n < 0) return myPow(1 / x, -n);                 //n < 0;
+        if (n == 0 || x == 1.0) return 1;                   //特殊情况；
+        if ((n & 1) == 1) return x * myPow(x, n - 1);       //奇偶性；
+        return myPow(x * x, n / 2);
+    }
+};
 /************************************************* 不是很明显使用二分法的题 ***************************************/
 //找到重复数字，不允许改动数组；
 class Solution {
