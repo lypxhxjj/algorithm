@@ -171,14 +171,14 @@ public:
             int mid = begin + (end - begin) / 2;
             if (nums[mid] == target) return mid;
             if (nums[mid] < nums[end]) {                //需要先判断好哪边有序，然后再决定走哪边；
-                if (target < nums[mid] || target > nums[end]) end = mid - 1;
+                if (target < nums[mid] || target > nums[end]) end = mid - 1;                //记住，根据有序的那边的边界和target比较决定走哪边；
                 else begin = mid + 1;
             }
             else {
-                if (target > nums[mid] || target < nums[begin]) begin = mid + 1;
+                if (target > nums[mid] || target < nums[begin]) begin = mid + 1;    //这里搞错了，想清楚要哪边，怎么要；
                 else end = mid - 1;
             }
-            
+                                                        //如果nums中存在相等元素，则相等的时候是end--；
         }
         return -1;
     }
