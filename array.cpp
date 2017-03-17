@@ -92,3 +92,18 @@ public:
         return result;
     }
 };
+
+//二维有序数组中找到第k小的数，基本找第k小的数都可以使用这个方法
+class Solution {
+public:
+    int kthSmallest(vector<vector<int>>& matrix, int k) {
+        priority_queue<int, vector<int>> pq;                //优先队列的方法来解决第k小/大的问题；
+        for (int i = 0; i < matrix.size(); ++i) {
+            for (int j = 0; j < matrix[0].size(); ++j) {        
+                pq.push(matrix[i][j]);                      //入队，如果队的大小超了，就pop();
+                if (pq.size() > k) pq.pop();
+            }
+        }
+        return pq.top();
+    }
+};
