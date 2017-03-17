@@ -26,6 +26,28 @@ public:
     }
 };
 
+//4个数求和的问题，都可以使用hashmap转化为o(n^2)的问题；
+class Solution {
+public:
+    int fourSumCount(vector<int>& A, vector<int>& B, vector<int>& C, vector<int>& D) {
+        int res = 0;
+        unordered_map<int, int> map;
+        for (int i = 0; i < A.size(); ++i) 
+            for (int j = 0; j < B.size(); ++j) 
+                map[A[i] + B[j]]++;
+        for (int i = 0; i < C.size(); ++i) {
+            for (int j = 0; j < D.size(); ++j) {
+                int add = C[i] + D[j];
+                if (map.find(-add) != map.end()) {
+                    res += map[-add];
+                }
+            }
+        }
+        return res;
+            
+    }
+};
+
 //数组的第二种方式：采用函数来解决一个一个的小问题：数独是否合法，两个有序数组的中位数
 class Solution {
     bool row_check(vector<vector<char>>&board, int i) {
