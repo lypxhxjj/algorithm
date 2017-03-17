@@ -220,6 +220,18 @@ public:
         return myPow(x * x, n / 2);
     }
 };
+
+//一个有序数组中target的起始位置和结束位置，类似于equal_range，但是这个函数也是由lower_bound和upper_bound实现的；
+class Solution {
+public:
+    vector<int> searchRange(vector<int>& nums, int target) {
+        auto it = lower_bound(nums.begin(), nums.end(), target);
+        if (it == nums.end() || *it != target) return {-1, -1};
+        
+        auto it1 = upper_bound(nums.begin(), nums.end(), target);
+        return {it - nums.begin(), it1 - nums.begin() - 1};
+    }
+};
 /************************************************* 不是很明显使用二分法的题 ***************************************/
 //找到重复数字，不允许改动数组；
 class Solution {
