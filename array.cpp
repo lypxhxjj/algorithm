@@ -208,3 +208,22 @@ public:
         return res;
     }
 };
+
+//1-n缺几个数，找到缺的几个：特点就在于数据被限制在了1-n，所以可以采用将数据看做索引的方式；
+//另：如果不允许改变数组，那么可以使用hashmap的方式；如果再不允许使用额外空间，那就使用二分查找的方式，不过后者只能找到一个缺失或者重复的；
+class Solution {
+public:
+    vector<int> findDisappearedNumbers(vector<int>& nums) {
+        for (int i = 0; i < nums.size(); ++i) {
+            if (nums[abs(nums[i]) - 1] < 0)
+                continue;
+            nums[abs(nums[i]) - 1] *= -1;
+        }
+        vector<int> res;
+        for (int i = 0; i < nums.size(); ++i) {
+            if (nums[i] > 0)
+                res.push_back(i + 1);
+        }
+        return res;
+    }
+};
