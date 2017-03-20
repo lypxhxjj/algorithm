@@ -158,3 +158,22 @@ public:
         return pq.top();
     }
 };
+
+//数组中数据只差相差k的数据对；没有顺序，不能重复；
+class Solution {
+public:
+    int findPairs(vector<int>& nums, int k) {
+        if (k < 0) return 0;
+        set<int> set;                       //set保存出现过的数；
+        map<int, int> map;                  //map保存结果；
+        for (int num : nums) {
+            if (set.find(k + num) != set.end())     //k肯定大于0，这里k < 0认为是0，更好的应该认为是-k，所以肯定second大一些；
+               map.insert({num, k + num});
+            if (set.find(num - k) != set.end())
+                map.insert({num - k, num});
+            set.insert(num);
+        }
+        return map.size();
+        
+    }
+};
