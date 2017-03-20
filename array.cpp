@@ -177,3 +177,19 @@ public:
         
     }
 };
+//timeSeries是放毒的时间点，durations是毒气的作用间隔，求最大的毒气作用时间
+class Solution {
+public:
+    int findPoisonedDuration(vector<int>& timeSeries, int duration) {
+        if (timeSeries.size() == 0) return 0;
+        int res = duration;                                     //至少是一个间隔，代表最后一个数释放的作用时间；
+        for (int i = 1; i < timeSeries.size(); ++i) {
+            if (timeSeries[i] - timeSeries[i - 1] > duration)   //前后两个数距离大时，前一个数的作用时间是duration；
+                res += duration;
+            else
+                res += timeSeries[i] - timeSeries[i - 1];       //距离比较小的话，前一个数的作用时间是二者之差；
+        }
+        return res;
+    }
+    
+};
