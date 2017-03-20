@@ -193,3 +193,18 @@ public:
     }
     
 };
+//求连续二进制1的个数；
+class Solution {
+public:
+    int findMaxConsecutiveOnes(vector<int>& nums) {
+        int res = 0;
+        int tmp = 0;
+        for (int num : nums) {
+            if (num == 1) 
+                res = max(++tmp, res);      //这里，每次给tmp++的时候更新res，可以不用在最后单独考虑tmp和res之间的关系，虽然感觉后者更好一些；
+            else
+                tmp = 0;
+        }
+        return res;
+    }
+};
