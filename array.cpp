@@ -255,3 +255,49 @@ public:
         return res;
     }
 };
+
+//设计类题目，随机访问的话，肯定是vector，随机删除的话，可以使用unordered_map，还有list，明前前者好用，然后vector既然也需要随机删除，那么就需要使用pop_back();
+class RandomizedCollection {
+    vector<int> data;
+    unordered_map<int, vector<int>> map;
+public:
+    /** Initialize your data structure here. */
+    RandomizedCollection() {
+        
+    }
+    
+    /** Inserts a value to the collection. Returns true if the collection did not already contain the specified element. */
+    bool insert(int val) {
+        bool res = true;
+        if (map.find(val) != map.end())
+            res = false;
+        data.push_back(val);
+        map[val].push_back((int)data.size() - 1);
+        return res;
+    }
+    
+    /** Removes a value from the collection. Returns true if the collection contained the specified element. */
+    bool remove(int val) {
+        if (map.find(val) == map.end())
+            return false;
+        int data_last_position = data.size() - 1;
+        int val_last_position = map[val].back();
+        int last_val = data[data_last_position];
+        swap(data[data_last_position], data[val_last_position]);    //交换到最后一个位置来删除；
+        data.pop_back();
+        *(map[last_val].rbegin()) = val_last_position;
+        map[val].pop_back();
+        if (map[val].size() == 0) 
+            map.erase(val);
+        return true;
+        
+    }
+    
+    /** Get a random element from the collection. */
+    int getRandom() {
+        srand(0);
+        if (data.size() == 0) return -1;
+        int location = rand() % (data.size());      //取余之前需要判断是否为空；
+        return data[location];
+    }
+};
