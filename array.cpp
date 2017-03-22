@@ -159,7 +159,9 @@ public:
     }
 };
 
-//找到第3大的数，
+//找到第3大的数:
+/** 如果使用优先队列找到第k大的数，默认是大顶堆，还可以使用小顶堆，小顶堆pop()的是小的，top()的也是小的；
+*/
 class Solution {
 public:
     int thirdMax(vector<int>& nums) {
