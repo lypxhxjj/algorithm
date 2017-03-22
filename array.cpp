@@ -259,7 +259,7 @@ public:
 //设计类题目，随机访问的话，肯定是vector，随机删除的话，可以使用unordered_map，还有list，明前前者好用，然后vector既然也需要随机删除，那么就需要使用pop_back();
 class RandomizedCollection {
     vector<int> data;
-    unordered_map<int, vector<int>> map;
+    unordered_map<int, vector<int>> map;    //这个hashmap的value保存的是key的索引；如果不允许重复，这个就不需要vector了
 public:
     /** Initialize your data structure here. */
     RandomizedCollection() {
