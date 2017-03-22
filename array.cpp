@@ -174,6 +174,28 @@ public:
         return set.size() < 3 ? *set.rbegin() : *set.begin();   //最后一个元素使用rbegin()
     }
 };
+//找到第3大，3毕竟太特殊了，所以完全可以遍历一遍就可以找到，不过，如果不考虑重复，还需要小技巧；
+class Solution {
+public:
+    int thirdMax(vector<int>& nums) {
+        long long first = LLONG_MIN, second = LLONG_MIN, third = LLONG_MIN; //使用LLONG_MIN以便最后的return；
+        for (int num : nums) {
+            if (num > first) {
+                third = second;
+                second = first;
+                first = num;
+            }
+            else if (num < first && num > second) {             //判断的时候，没有等于，而且需要判断两项；
+                third = second;
+                second = num;
+            }
+            else if (num < second && num > third) {
+                third = num;
+            }
+        }
+        return third == LLONG_MIN ? first : third;
+    }
+};
 
 //数组中数据只差相差k的数据对；没有顺序，不能重复；
 class Solution {
