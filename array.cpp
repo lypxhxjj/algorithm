@@ -303,3 +303,30 @@ public:
         return data[location];
     }
 };
+
+//生命游戏问题：一个活cell周围有1个0个4个及以上的生命时，会死掉；一个死cell周围有三个活的的时候会复活；其余死就死，活就活，不变；
+//问题的难点，在于就是完全相互的作用，且作用一次，就是你判定为其最后是死掉，那么下次它为neighbor时，应该判定为原来的状态；
+class Solution {
+public:
+    void gameOfLife(vector<vector<int>>& board) {
+        int depth = board.size(), width = depth ? board[0].size() : 0;      //技巧1：一行代码得到width和depth；
+        for (int i = 0; i < depth; ++i) {
+            for (int j = 0; j < width; ++j) {
+                int cnt = 0;
+                for (int m = max(0, i - 1); m < min(depth, i + 2); ++m) {       //技巧2：如果找到其四周的坐标；  技巧3：使用depth，width这种有含义的，容易理解
+                    for (int n = max(0, j - 1); n < min(width, j + 2); ++n) {
+                        cnt += (board[m][n] & 1);                               //既然使用最后一位来判断死活，那下边赋值的2和3必须是其原来的状态；
+                    }
+                }
+                if (board[i][j] == 0 && cnt == 3) board[i][j] = 2;              //2的最后一位与其原来是死的状态相同；
+                if (board[i][j] == 1 && (cnt > 4 || cnt < 3)) board[i][j] = 3;  //只需要考虑这两种，死而复活或者活变死两种情况；
+            }
+        }
+        for (int i = 0; i < depth; ++i) {
+            for (int j = 0; j < width; ++j) {
+                if (board[i][j] == 2) board[i][j] = 1;                             //状态找完了，就需要更新状态了；
+                else if (board[i][j] == 3) board[i][j] = 0;
+            }
+        }
+    }
+};
