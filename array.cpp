@@ -287,8 +287,8 @@ public:
 
 //设计类题目，随机访问的话，肯定是vector，随机删除的话，可以使用unordered_map，还有list，明前前者好用，然后vector既然也需要随机删除，那么就需要使用pop_back();
 class RandomizedCollection {
-    vector<int> data;
-    unordered_map<int, vector<int>> map;    //这个hashmap的value保存的是key的索引；如果不允许重复，这个就不需要vector了
+    vector<int> data;                               //vector用于随机访问，其pop_back()也可以随机删除，但是需要unordered_map保存其索引；
+    unordered_map<int, priority_queue<int>> map;    //map需要使用priority_queue来保存索引，因为删除掉一个元素之后，改变另一个元素的索引，那个另一个元素索引不一定按顺序了；
 public:
     /** Initialize your data structure here. */
     RandomizedCollection() {
@@ -301,7 +301,7 @@ public:
         if (map.find(val) != map.end())
             res = false;
         data.push_back(val);
-        map[val].push_back((int)data.size() - 1);
+        map[val].push((int)data.size() - 1);
         return res;
     }
     
@@ -310,24 +310,28 @@ public:
         if (map.find(val) == map.end())
             return false;
         int data_last_position = data.size() - 1;
-        int val_last_position = map[val].back();
+        int val_last_position = map[val].top();         //基本原理就是根据map保存的索引将待删除的元素移到最后去，然后删除；
         int last_val = data[data_last_position];
-        swap(data[data_last_position], data[val_last_position]);    //交换到最后一个位置来删除；
-        data.pop_back();
-        *(map[last_val].rbegin()) = val_last_position;
-        map[val].pop_back();
+        if (last_val == val) {
+            data.pop_back();
+            map[last_val].pop();
+        }
+        else {
+            data[val_last_position] = last_val;
+            data.pop_back();
+            map[last_val].pop();
+            map[last_val].push(val_last_position);
+            map[val].pop();
+        }
         if (map[val].size() == 0) 
-            map.erase(val);
+            map.erase(val);                         //注意如果没有了，要erase一下；
         return true;
         
     }
     
     /** Get a random element from the collection. */
     int getRandom() {
-        srand(0);
-        if (data.size() == 0) return -1;
-        int location = rand() % (data.size());      //取余之前需要判断是否为空；
-        return data[location];
+        return data[rand() % data.size()];      //不能加srand(0)，leetcode还不能解析出来；
     }
 };
 
