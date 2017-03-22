@@ -159,6 +159,20 @@ public:
     }
 };
 
+//找到第3大的数，
+class Solution {
+public:
+    int thirdMax(vector<int>& nums) {
+        set<int> set;                       //第几大的数，可以使用set+ erase，还可以使用priority_queue，但是set的好处是可以去重；
+        for (int num : nums) {
+            set.insert(num);
+            if (set.size() > 3)
+                set.erase(set.begin());
+        }
+        return set.size() < 3 ? *set.rbegin() : *set.begin();   //最后一个元素使用rbegin()
+    }
+};
+
 //数组中数据只差相差k的数据对；没有顺序，不能重复；
 class Solution {
 public:
