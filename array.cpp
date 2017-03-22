@@ -227,3 +227,17 @@ public:
         return res;
     }
 };
+//找到出现两次的数组；
+class Solution {
+public:
+    vector<int> findDuplicates(vector<int>& nums) {
+        vector<int> res;                                //由于只是两次，所以不需要使用set;
+        for (int i = 0; i < nums.size(); ++i) {
+            if (nums[abs(nums[i]) - 1] < 0) 
+                res.push_back(abs(nums[i]));            //要加进来谁，需要注意；
+            else
+                nums[abs(nums[i]) - 1] *= -1;
+        }
+        return res;
+    }
+};
