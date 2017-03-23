@@ -285,6 +285,21 @@ public:
     }
 };
 
+//数组里存的是1-n，找到重复数字，不允许改变数组；那就是二分法；
+class Solution {
+public:
+    int findDuplicate(vector<int>& nums) {
+        int begin = 1, end = nums.size() - 1;
+        while (begin < end) {
+            int mid = begin + (end - begin) / 2;
+            int cnt = count_if(nums.begin(), nums.end(), bind2nd(less<int>(), mid + 1));    //使用count_if统计，然后
+            if (cnt > mid) end = mid;
+            else begin = mid + 1;
+        }
+        return begin;
+    }
+};
+
 //设计类题目，随机访问的话，肯定是vector，随机删除的话，可以使用unordered_map，还有list，明前前者好用，然后vector既然也需要随机删除，那么就需要使用pop_back();
 class RandomizedCollection {
     vector<int> data;                               //vector用于随机访问，其pop_back()也可以随机删除，但是需要unordered_map保存其索引；
