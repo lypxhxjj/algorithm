@@ -1,3 +1,16 @@
+//1-n缺失了一个，找到缺失的那个：数学的方法：
+class Solution {
+public:
+    int missingNumber(vector<int>& nums) {
+        int add1 = 0;
+        int add2 = 0, i = 1;
+        for (int num : nums) {
+            add1 += num;
+            add2 += i++;
+        }
+        return add2 - add1;
+    }
+};
 //遍历数组使用加逼法，可以降低一次循环；（前提有序，所以复杂度至少为o(nlogn)）
 //4个数加和为target
 class Solution {
