@@ -376,3 +376,155 @@ public:
         }
     }
 };
+
+//小专题：std::partition以及std::stable_partition的实现
+/* 函数 __partition 将 __first 到 __last 的元素分为两个部分，第一部分为满足一元判断条件 __pred 的元素，第二部分为不满足一元判断条件的元素。
+返回值为分割这两部分的分割位置。函数中至始至终 __first(不包括 __first) 之前的元素都是满足判断条件的。*/
+template <class _ForwardIter, class _Predicate>
+_ForwardIter __partition(_ForwardIter __first,
+             _ForwardIter __last,
+             _Predicate   __pred,
+             forward_iterator_tag) {
+  if (__first == __last) return __first;
+
+  while (__pred(*__first))
+    if (++__first == __last) return __first;    //先找到第一个需要被换走的
+  _ForwardIter __next = __first;
+
+  while (++__next != __last)    //从其后面找可以被换回来的；
+    if (__pred(*__next)) {
+      swap(*__first, *__next);
+      ++__first;                //对被换走的将其换回来；
+    }
+
+  return __first;
+}
+/* 函数 __partition 将 __first 到 __last 之间的内容分割为两部分，前一部分为满足判断条件 __pred 的元素，
+第二部分为不满足判断条件 __pred 的元素，返回值为分割这两部分的分割值。函数至始至终保证 __first(不包括 __first) 之前的元素都是满足条件的，
+__last(包括 __last) 之后的元素都是不满足条件的，当 __first == __last，则 __first 被作为分割值返回。*/
+template <class _BidirectionalIter, class _Predicate>
+_BidirectionalIter __partition(_BidirectionalIter __first,
+                   _BidirectionalIter __last,
+                   _Predicate __pred,
+                   bidirectional_iterator_tag) {
+  while (true) {
+    while (true)                    //就是一个从前面找，一个从后面找，找到了就交换；
+      if (__first == __last)
+    return __first;
+      else if (__pred(*__first))
+    ++__first;
+      else
+    break;
+    --__last;
+    while (true)
+      if (__first == __last)                    //边界条件在循环的过程中就判断了，如果到达了最后，就直接返回；
+    return __first;
+      else if (!__pred(*__last))
+    --__last;
+      else
+    break;
+    iter_swap(__first, __last);
+    ++__first;
+  }
+}
+/* 函数 partition 将 __first 到 __last 之间的内容分割为两部分，第一部分为满足判断条件 __pred 的元素，
+第二部分为不满足判断条件的元素。函数根据迭代器类型的不同调用之前定义的不同的 __partition 函数实现想要的功能。*/
+template <class _ForwardIter, class _Predicate>
+inline _ForwardIter partition(_ForwardIter __first,
+                  _ForwardIter __last,
+                  _Predicate   __pred) {
+  __STL_REQUIRES(_ForwardIter, _Mutable_ForwardIterator);
+  __STL_UNARY_FUNCTION_CHECK(_Predicate, bool, 
+    typename iterator_traits<_ForwardIter>::value_type);
+  return __partition(__first, __last, __pred, __ITERATOR_CATEGORY(__first));
+}
+/* __inplace_stable_partition 用来将 __first 到 __last 之间长度从 __first 开始为 __len 的部分分割成两部分，
+第一部分为满足一元判断条件的部分，第二部分为不满足条件的部分，函数递归的进行，先对前半部分和后半部分分别调用 __inplace_stable_partition
+函数使得这两部分都被各自被分割为两块，然后将前半部分的后一块和后半部分的前一块进行交换。假设递归函数中得到的分割序列是稳定的，
+则当前函数得到的序列也是稳定的，又因为初始条件是稳定的，所以函数最终得到的序列是稳定的。*/
+template <class _ForwardIter, class _Predicate, class _Distance>
+_ForwardIter __inplace_stable_partition(_ForwardIter __first,
+                    _ForwardIter __last,
+                    _Predicate __pred, _Distance __len) {
+  if (__len == 1)
+    return __pred(*__first) ? __last : __first;
+  _ForwardIter __middle = __first;
+  advance(__middle, __len / 2);
+  return rotate(__inplace_stable_partition(__first, __middle, __pred,   //注意返回值是不满足条件的第一个；
+                       __len / 2),  
+        __middle,                                                 //旋转的意思是，最后middle成为第一个元素了；
+        __inplace_stable_partition(__middle, __last, __pred,    //这个的返回值也是不满足条件的第一个；
+                       __len - __len / 2));
+}
+/* 函数 __stable_partition_adaptive 也是将 __first 到 __last 之间的内容分割为两部分，第一部分为满足判断条件的元素组成，
+第二部分为不满足判断条件的元素组成，并且函数是稳定的。函数中根据 __buffer_size 的大小分两种情况，但需要分割的元素个数小于
+__buffer_size 时，则将 __buffer 作为辅助空间，先将满足条件的元素放在以 __first 为首地址的空间内，
+而将不满足条件的元素放在以 __buffer 为首地址的空间，最后将 __buffer 中暂存的元素复制到 __first 到 __last 之间满足条件的元素后面。
+如果 __buffer_size 的大小小于需要分割的元素个数 __len ，则直接使用上面定义的方法实现稳定的分割。*/
+template <class _ForwardIter, class _Pointer, class _Predicate, 
+      class _Distance>
+_ForwardIter __stable_partition_adaptive(_ForwardIter __first,
+                     _ForwardIter __last,
+                     _Predicate __pred, _Distance __len,
+                     _Pointer __buffer,
+                     _Distance __buffer_size) 
+{
+  if (__len <= __buffer_size) {         //空间足够的话，就使用额外空间的方法；
+    _ForwardIter __result1 = __first;
+    _Pointer __result2 = __buffer;
+    for ( ; __first != __last ; ++__first)
+      if (__pred(*__first)) {
+    *__result1 = *__first;
+    ++__result1;
+      }
+      else {
+    *__result2 = *__first;
+    ++__result2;
+      }
+    copy(__buffer, __result2, __result1);
+    return __result1;
+  }
+  else {                                        //不够的话，就使用递归，原理同上；不过此时空间够了就使用空间来解决问题；
+    _ForwardIter __middle = __first;
+    advance(__middle, __len / 2);
+    return rotate(__stable_partition_adaptive(
+              __first, __middle, __pred,
+              __len / 2, __buffer, __buffer_size),
+            __middle,
+            __stable_partition_adaptive(
+              __middle, __last, __pred,
+              __len - __len / 2, __buffer, __buffer_size));
+  }
+}
+/* 函数 __stable_partition_aux 将 __first 到 __last 之间的内容分割为两部分，第一部分由满足条件 __pred 的元素组成，
+第二部分有不满足条件的元素组成。函数首先申请一个足够容纳 __first 到 __last 之间的所有元素的临时缓冲区，如果申请成功，
+则调用 __stable_partition_adaptive 函数实现分割，否则调用 __inplace_stable_partition 实现分割。*/
+template <class _ForwardIter, class _Predicate, class _Tp, class _Distance>
+inline _ForwardIter
+__stable_partition_aux(_ForwardIter __first, _ForwardIter __last, 
+               _Predicate __pred, _Tp*, _Distance*)
+{
+  _Temporary_buffer<_ForwardIter, _Tp> __buf(__first, __last);      //先看分配到足够的空间没；
+  if (__buf.size() > 0)
+    return __stable_partition_adaptive(__first, __last, __pred,
+                       _Distance(__buf.requested_size()),
+                       __buf.begin(), __buf.size());
+  else
+    return __inplace_stable_partition(__first, __last, __pred, 
+                      _Distance(__buf.requested_size()));
+}
+/*函数 stable_partition 将 __first 到 __last 之间的内容分割为上面定义的两部分，具体的功能实现通过调用 __stable_partition_aux 函数来完成。*/
+template <class _ForwardIter, class _Predicate>
+inline _ForwardIter stable_partition(_ForwardIter __first,
+                     _ForwardIter __last, 
+                     _Predicate __pred) {
+  __STL_REQUIRES(_ForwardIter, _Mutable_ForwardIterator);
+  __STL_UNARY_FUNCTION_CHECK(_Predicate, bool,
+      typename iterator_traits<_ForwardIter>::value_type);
+  if (__first == __last)
+    return __first;
+  else
+    return __stable_partition_aux(__first, __last, __pred,
+                  __VALUE_TYPE(__first),
+                  __DISTANCE_TYPE(__first));
+}
