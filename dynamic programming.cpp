@@ -58,3 +58,19 @@ public:
         return tmp.size();
     }
 };
+//子串之和是k的倍数，就返回true，否则返回false；
+class Solution {
+public:
+    bool checkSubarraySum(vector<int>& nums, int k) {
+        for (int i = 0; i < nums.size(); ++i) {//处理子串的问题，都是二重循环，第一重循环代表的是从哪开始，第二重循环代表到哪；
+            long long add = nums[i];
+            for (int j = i + 1; j < nums.size(); ++j) {
+                add += nums[j];         //此题有个很大的特点是，子数组最少两个数，所以需要加一下再判断；否则外边也需要判断一下；
+                if (k == add) return true;
+                if (k != 0 && add % k == 0) //考虑k==0的情况，有的借鉴，取余肯定不行，可以在取余前加判零操作，还需要在前边加一个k == add的条件；
+                    return true;
+            }
+        }
+        return false;
+    }
+};
