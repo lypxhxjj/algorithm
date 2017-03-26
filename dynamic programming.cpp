@@ -74,3 +74,19 @@ public:
         return false;
     }
 };
+//第二种解法基于数学，保存的是取余之后的余数，如果两个余数相等，那么两个和相减的话，这个子串对应的必是k的倍数；
+class Solution {
+public:
+    bool checkSubarraySum(vector<int>& nums, int k) {
+        int n = nums.size(), sum = 0, pre = 0;
+        unordered_set<int> st;                  //保存的挺特殊的，保存余数；
+        for (int i = 0; i < n; ++i) {
+            sum += nums[i];
+            int t = (k == 0) ? sum : (sum % k);         //求一遍和就可以，至少从第二个数开始减，所以至少是两个数的数组；
+            if (st.count(t)) return true;
+            st.insert(pre);
+            pre = t;
+        }
+        return false;
+    }
+};
