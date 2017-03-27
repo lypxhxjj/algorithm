@@ -90,3 +90,22 @@ public:
         return false;
     }
 };
+
+//上面是子串的问题，此题是子矩阵的问题：子矩阵之和：然后利用几何知识来寻找当前和与前面哪些和有关系
+class NumMatrix {
+    vector<vector<int>> sums;               //数组的大小应该是，比matrix大一圈；
+public:
+    NumMatrix(vector<vector<int>> matrix) {
+        if (matrix.size() == 0) return;     //矩阵相关问题，一定要检查是否长度是0，此时sums，应该是{}，而不是{{}}；
+        sums = vector<vector<int>>(matrix.size() + 1, vector<int>(matrix[0].size() + 1) );
+        for (int i = 1; i <= matrix.size(); ++i) {
+            for (int j = 1; j <= matrix[0].size(); ++j) {   //求和的方法是
+                sums[i][j] = sums[i - 1][j] + sums[i][j - 1] - sums[i - 1][j - 1] + matrix[i - 1][j - 1];
+            }
+        }
+    }
+    
+    int sumRegion(int row1, int col1, int row2, int col2) { //返回结果的方法，和求和方法类似，col1和row2搭配着来；
+        return sums[row2 + 1][col2 + 1] - sums[row1][col2 + 1] - sums[row2 + 1][col1] + sums[row1][col1];
+    }
+};
