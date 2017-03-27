@@ -382,6 +382,26 @@ public:
     }
 };
 
+//上面的解法比较容易造成思路混乱，这个清楚一点
+class Solution {
+    bool backStracking(string s, string p) {
+        if (p.size() == 0) return s.size() == 0;    //选择检查p是否为空而不是s，是因为即使s为空，那么p也可能是a*，此时也是true；
+        if (p.size() == 1) return s.size() == 1 && (s[0] == p[0] || p[0] == '.');   //因为要考虑*，所以先考虑下一个元素；
+        if (p[1] == '*') {
+            bool condition1 = backStracking(s, p.substr(2));    //*代表0个；
+            if (condition1) return true;                        //本来用或的，不用了，就只能用if了；
+            if (s.size() == 0) return false;                    //后边会用到s[0]所以需要先判断s.size();
+            condition1 = (s[0] == p[0] || p[0] == '.');
+            return condition1 && (backStracking(s.substr(1), p));//这个代表是1个及以上的个数；
+        }
+        return s.size() > 0 && (s[0] == p[0] || p[0] == '.') && backStracking(s.substr(1), p.substr(1));
+    }
+public:
+    bool isMatch(string s, string p) {
+        return backStracking(s, p);
+    }
+};
+
 //八皇后的要求是，每行Q的位置不在同一列，斜线位置也不可以；
 class Solution {
     bool check(vector<string>& tmp, vector<int>& location, int j) {
