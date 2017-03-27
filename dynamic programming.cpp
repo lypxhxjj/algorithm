@@ -109,3 +109,38 @@ public:
         return sums[row2 + 1][col2 + 1] - sums[row1][col2 + 1] - sums[row2 + 1][col1] + sums[row1][col1];
     }
 };
+//利用子矩阵和解决的一个问题：找到子矩阵和比k小的最大的那个数；
+class Solution {
+    vector<vector<int>> cal_sum(vector<vector<int>>& matrix) {
+        vector<vector<int>> res(matrix.size() + 1, vector<int>(matrix[0].size() + 1));
+        for (int i = 1; i <= matrix.size(); ++i) {
+            for (int j = 1; j <= matrix[0].size(); ++j) {
+                res[i][j] = res[i - 1][j] + res[i][j - 1] - res[i - 1][j - 1] + matrix[i - 1][j - 1];
+            }
+        }
+        return res;
+    }
+    int cal_child_sum(int i, int j, int m, int n, vector<vector<int>>& sums) {
+        return sums[m + 1][n + 1] - sums[i][n + 1] - sums[m + 1][j] + sums[i][j];   //这两个方法完全是照搬上面的问题；
+    }
+public:
+    int maxSumSubmatrix(vector<vector<int>>& matrix, int k) {
+        vector<vector<int>> sums = cal_sum(matrix);
+        int delta = INT_MAX;
+        for (int i = 0; i < matrix.size(); ++i) {               //四重循环；注意，sums是外层多了一层0，但是四重循环找和时，还是需要遍历matrix的，而不是sums的，因为上面的helper就是基于matrix的；
+            for (int j = 0; j < matrix[0].size(); ++j) {
+                for (int m = 0; m <= i; ++m) {
+                    for (int n = 0; n <= j; ++n) {
+                        int sum = cal_child_sum(m, n, i, j, sums);
+                        if (sum == k)
+                            return k;
+                        else if (sum < k) {
+                            delta = min(delta, k - sum);
+                        }
+                    }
+                }
+            }
+        }
+        return k - delta;
+    }
+};
