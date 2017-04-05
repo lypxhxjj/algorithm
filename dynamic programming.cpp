@@ -1,3 +1,23 @@
+//感觉更像数组的问题，问s是否是t的子串，是t删掉某些字符后的子串。当前同时遍历st就好，但是当同时有多个s，t很大时，需要先将t的信息保存到unordered_map中，然后使用upper_bound来搭配解决问题
+class Solution {
+public:
+    bool isSubsequence(string s, string t) {
+        unordered_map<char, vector<int>> map;
+        for (int i = 0; i < t.size(); ++i) {
+            map[t[i]].push_back(i);
+        }
+        int j = -1;
+        for (int i = 0; i < s.size(); ++i) {
+            if (map.find(s[i]) == map.end()) 
+                return false;
+            auto it = upper_bound(map[s[i]].begin(), map[s[i]].end(), j);   //已知保存到hashmap中了，那么如何查询呢？
+            if (it == map[s[i]].end()) 
+                return false;
+            j = *it;
+        }
+        return true;
+    }
+};
 //1  遍历数组时的当前值，前面的结果加上当前值，还是从当前值重新开始；
 //问题：和最大的最长子串问题：
 class Solution {
