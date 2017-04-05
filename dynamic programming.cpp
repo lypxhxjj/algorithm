@@ -167,3 +167,24 @@ public:
         return res;
     }
 };
+
+/**************************************背包问题********************************/
+/** 问题描述：一个数组可不可以拆分成两个数组，这两个数组的accumulate和相等；
+** 问题转化：背包问题，任意k个物品，价值之和是target 
+** 表达式含义：dp[j] = dp[j] || dp[j - nums[i]] :dp代表的是和，当前位置i之前的数据相加都可以产生哪些target以内的和*/
+class Solution {
+public:
+    bool canPartition(vector<int>& nums) {
+        int sum = accumulate(nums.begin(), nums.end(), 0);
+        if ((sum & 1) == 1) return false;
+        int target = sum >> 1;
+        vector<int> dp(target + 1, 0);
+        dp[0] = 1;
+        for (int i = 0; i < nums.size(); ++i) {
+            for (int j = target; j >= nums[i]; --j) {
+                dp[j] = dp[j] || dp[j - nums[i]];   //含义是，加上nums[i]可以使得dp这个和的数组多出哪些值来；
+            }
+        }
+        return dp.back();
+    }
+};
