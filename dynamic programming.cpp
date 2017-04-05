@@ -144,3 +144,26 @@ public:
         return k - delta;
     }
 };
+
+/**********************************子数组问题********************************/
+/** 问题是p中有多少种连续的子串za也算一个*/
+class Solution {
+public:
+    int findSubstringInWraproundString(string p) {
+        unordered_map<char, int> map;
+        int cnt = 1;
+        for (int i = 0; i < p.size(); ++i) {
+            if (i > 0 && (p[i] - p[i - 1] == 1 || (p[i - 1] == 'z' && p[i] == 'a'))) {  //循环一般需要考虑i == 0的问题，可以使用此题方法，i > 0判断一下；
+                    cnt++;
+            }
+            else {
+                cnt = 1;
+            }
+            map[p[i]] = max(map[p[i]], cnt);    //基本思路就是，原地向前找到这个字符对应的最大子串；（原地向前的操作可以随着遍历字符串得到）
+        }
+        int res = 0;
+        for (auto m : map)
+            res += m.second;
+        return res;
+    }
+};
