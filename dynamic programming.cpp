@@ -208,3 +208,31 @@ public:
         return dp.back();
     }
 };
+
+/********************************8很直白的利用前面的数据*******************************/
+/** 求不大于num的所有数据的1的个数 */
+/** 简便算法是：上一个区段的对应值是(n & n - 1), 所以可以直接写：res[i] = res[i & (i - 1)] + 1*/
+class Solution {
+public:
+    vector<int> countBits(int num) {
+        vector<int> res(num + 1);
+        int i = 1;
+        int bound1 = 1;
+        int bound2 = 2;             //定义一个区间；
+        while (i <= num) {
+            if (i == bound1) {      //while循环是一个数据一个数据的处理，里面不怕if多。
+                res[i] = 1;
+            }
+            else if (i == bound2) { 
+                res[i] = 1;
+                bound1 <<= 1;
+                bound2 <<= 1;
+            }
+            else {
+                res[i] = res[i - bound1] + 1;   //很直白的表达式：当前值1的个数，是前面区间的数 + 1；
+            }
+            i++;
+        }
+        return res;
+    }
+};
