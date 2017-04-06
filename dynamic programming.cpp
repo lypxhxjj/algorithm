@@ -236,3 +236,17 @@ public:
         return res;
     }
 };
+//判断一个数是否是丑陋的数，这个数的质数因子只有2，3，5；
+class Solution {
+public:
+    bool isUgly(int num) {
+        if (num <= 0) return false; //要求是正数；
+        while (num > 1) {                   //此题利用了上一题的技巧，使用while循环一个一个的遍历，内部可以使用各种if；
+            if (num % 2 == 0) num /= 2;
+            else if (num % 3 == 0) num /= 3;
+            else if (num % 5 == 0) num /= 5;
+            else return false;
+        }
+        return true;
+    }
+};
