@@ -16,11 +16,15 @@ bool isOverflow1(unsigned int res, int dig) {
 
 // 处理溢出问题的方式2：
 // 基于INT_MAX计算临界值，然后去比对。
+//
 // 7. 整数反转: https://leetcode.cn/problems/reverse-integer/
+//
+// 如果比较简单，这个方式校验可简化到一行代码，参考math.go:
+// 29. 两数相除： https://leetcode.cn/problems/divide-two-integers/
 bool isOverflow2(int base, int dig) {
     const int maxBase = INT_MAX / 10;
     const int maxDig = INT_MAX % 10;
-    return base > maxBase || (base == maxBase && dig > maxDig);
+    return base > maxBase || (base == maxBase && dig > maxDig); // 本质就是一行代码
 }
 
 // 处理溢出的方式3：

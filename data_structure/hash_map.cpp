@@ -27,3 +27,9 @@ int hash(const string& needle, int M, int R, int Q) {
     }
     return res;
 }
+
+// hashmap与滑动窗口结合，并使用diff的场景。
+//
+// 参考滑动窗口章节。
+//
+// 438. 找到字符串中所有字母异位词: https://leetcode.cn/problems/find-all-anagrams-in-a-string/
