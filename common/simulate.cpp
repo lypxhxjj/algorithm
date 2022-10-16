@@ -61,3 +61,27 @@ string countAndSay(int n) {
     }
     return res;
 }
+
+
+// 需要删除，但是真的要删除操作吗，可不可以用赋值代替删除？
+// 本题解法比较有意思的点是：找到逆序对后，可以得出如下结论:
+// a b c d，bc是逆序对，那么b>a, b>c。如果删，那么删b还是c？对于a来说，要比a大的，对于d来说，要比d小的：可以总结为：比a大的尽量小的。
+// 所以，如果c > a，那么取c，否则取d。
+// 这里的删除，可以简单通过赋值实现。假如要删的是c，那么就把b的值赋值给c。
+//
+// 1909. 删除一个元素使数组严格递增: https://leetcode.cn/problems/remove-one-element-to-make-the-array-strictly-increasing/
+    bool canBeIncreasing(vector<int>& nums) {
+        int pcnt = 0; // 逆序对数量
+        for (int i = 1; i < nums.size(); i++) {
+            if (nums[i - 1] < nums[i]) {
+                continue;
+            }
+            if (++pcnt > 1) {
+                return false;
+            }
+            if (i > 1 && nums[i - 2] >= nums[i] ) {
+                nums[i] = nums[i - 1];
+            }
+        }
+        return true;
+    }

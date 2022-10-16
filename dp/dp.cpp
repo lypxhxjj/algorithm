@@ -10,7 +10,7 @@
 // （2）再取决于dp[i-1][j]，即*匹配了1个或者多个，即可以理解为s[i]没有出现过。但是使用*能消掉s[i]，前提是p[j - 1]为点或者s[i] == p[j - 1]；
 //
 // dp问题思路：
-// 1. 两个数组基本就是二维dp了，表现为一个横坐标一个纵坐标；
+// 1. 两个数组基本就是二维dp了，表现为一个横坐标一个纵坐标；（这里模式串作为纵坐标）
 // 2. 申请的dp大小要不是是数组大小+1？可以考虑初始状态，是否需要单独考虑；
 // 3. 初始一行和一列是需要特殊考虑的，可以先赋值好；
 // 4. 赋值dp的过程中，还是遍历原数组的方式构造for循环即可，dp使用dp[i + 1][j + 1]，是可以保证不越界的。
@@ -99,7 +99,7 @@ int longestValidParentheses(string s) {
     return *max_element(dp.begin(), dp.end());
 }
 
-// 子序列的个数问题。特殊点：子序列的规则个数有限，只有三种：只有0，有01，有012
+// 子序列问题。特殊点：子序列生成的中间状态有限，只有三种：只有0，有01，有012
 // 那可以分成三个状态，分别保存。后面的状态依赖前边的状态。
 // 1. seq0 += seq0 + 1; 加等于代表当前可加可不加；为啥加了1，因为seq0之前的序列中不包含空数组；
 // 2. seq1 += seq1 + seq0;
@@ -125,4 +125,20 @@ int countSpecialSubsequences(vector<int>& nums) {
         }
     }
     return seq2;
+}
+
+// 子序列问题。特殊点：结果中存在两个状态，以奇数结尾，以偶数结尾，两个状态可以相互转换
+// 每个状态可以保存当前的最优结果，下个状态仅依赖当前状态。这种就是典型的dp问题了。
+// 不好想的点是：状态使用多个变量来保存。
+//
+// 1911. 最大子序列交替和 https://leetcode.cn/problems/maximum-alternating-subsequence-sum/
+long long maxAlternatingSum(vector<int>& nums) {
+    if (nums.size() == 0) return 0;
+    long long oddSum = 0; // 最后一个是奇数索引
+    long long evenSum = nums[0]; // 最后一个是偶数索引；
+    for (int i = 0; i < nums.size(); i++) {
+        oddSum = max(oddSum, evenSum - nums[i]);
+        evenSum = max(evenSum, oddSum + nums[i]);
+    }
+    return evenSum;
 }

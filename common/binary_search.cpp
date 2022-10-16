@@ -35,9 +35,9 @@ double findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2) {
 }
 
 // 经典二分：近似有序的数组查找，涉及到的技巧如下：
-// 1. 既然部分有序，那么就找到有序的那部分，然后判断是否可以淘汰有序的那部分；（进一步，如果无法找到有序的那部分，尝试只淘汰掉部分元素，比如让j--/i++）
-// 2. 优先使用nums[mid]和nums[j]比较，因为mid一定不等于j，不用考虑等于的问题；
-// 3. 小结论：最终结果一定考虑没有找到的情况，因为i == j已经不进入循环了，可能一开始就完全没进入循环。
+// 1. 非全局有序找部分有序：既然部分有序，那么就找到有序的那部分，然后判断是否可以淘汰有序的那部分；（进一步，如果无法找到有序的那部分，尝试只淘汰掉部分元素，比如让j--/i++）
+// 2. 优先比较mid和j：优先使用nums[mid]和nums[j]比较，因为mid一定不等于j，不用考虑等于的问题；
+// 3. 最终结果特殊考虑：最终结果一定考虑没有找到的情况，因为i == j已经不进入循环了，可能一开始就完全没进入循环。
 // 
 // 33. 搜索旋转排序数组: https://leetcode.cn/problems/search-in-rotated-sorted-array/
 int search(vector<int>& nums, int target) {
@@ -89,7 +89,7 @@ int lastPos(vector<int>& nums, int target) {
 }
 
 // 经典二分的一个小问题：寻找第一个插入位置
-// 第一个插入位置，可能位于nums.size()，而j的初始值是nums.size() - 1，i和j的范围都是到达不了的，所以此时需要单独考虑这种情况。
+// 最终结果可能不在[i, j]范围：第一个插入位置，可能位于nums.size()，而j的初始值是nums.size() - 1，i和j的范围都是到达不了的，所以此时需要单独考虑这种情况。
 // 小结论：二分中，i和j的最终范围可能是什么？分情况讨论（i = mid的对称情况就不考虑了）：
 // （1）i = mid + 1,j = mid;因为mid一定位于[i, j)，所以最终的i和j一定位于初始[i, j]内；
 // （2）i = mid + 1, j = mid - 1; 同理，极端是可以到达[i - 1, j]的，所以要考虑溢出的场景，最好不好使用这种写法。
@@ -117,3 +117,33 @@ int searchInsert(vector<int>& nums, int target) {
 //
 // 参考 math/rectangle.cpp
 // 1954. 收集足够苹果的最小花园周长 https://leetcode.cn/problems/minimum-garden-perimeter-to-collect-enough-apples/
+
+// 二分可解决的一个问题，寻找峰值：有几个限制条件：相邻元素不相等，左右两边为负无穷。
+// 1. 矩阵问题要求o(mlogn)，那么一定是其中一列遍历，另外一列二分查找。
+// 2. 矩阵问题中淘汰哪一半，左右还是上下？因为行遍历容易些，可以使用max_element算法，所以二分使用行来淘汰掉上一半或者下一半；
+// 3. 矩形问题中，mid寻找的复杂度太高咋办？因为mid在寻找过程中的时间复杂度是o(n)，所以在循环内部一旦满足条件，立即返回。
+//
+// 1901. 寻找峰值 II https://leetcode.cn/problems/find-a-peak-element-ii/
+vector<int> findPeakGrid(vector<vector<int>>& mat) {
+    if (mat.size() == 0 || mat[0].size() == 0) return {};
+
+    int i = 0, j = mat.size() - 1;
+    while (i < j) {
+        int mid = i + (j - i) / 2;
+
+        auto colMaxIter = max_element(mat[mid].begin(), mat[mid].end());
+        int col = colMaxIter - mat[mid].begin();
+
+        if ((mid == 0 || mat[mid][col] > mat[mid-1][col]) && *colMaxIter > mat[mid + 1][col]) {
+            return {mid, col};
+        }
+            
+        if (*colMaxIter > mat[mid + 1][col]) {
+            j = mid;
+        } else {
+            i = mid + 1;
+        }
+    }
+    auto colMaxIter =  max_element(mat[i].begin(), mat[i].end());
+    return {i, int(colMaxIter - mat[i].begin())};
+}

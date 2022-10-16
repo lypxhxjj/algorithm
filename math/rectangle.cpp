@@ -63,3 +63,37 @@ long long minimumPerimeter(long long neededApples) {
     }
     return i * 8;
 }
+
+// 如何环形遍历矩形？需要背下来的模板：
+// 1. 四个变量代表上下左右边界：上边界（i）,左边界（j），右边界（n）,下边界（m）
+// 2. 不断遍历，并不断重新定义上下左右边界
+//
+// 54. 螺旋矩阵 https://leetcode.cn/problems/spiral-matrix/
+//
+// 小问题：由于每次不断重新定义边界，所以没办法遍历两次，比如下题：
+// 1914. 循环轮转矩阵 https://leetcode.cn/problems/cyclically-rotating-a-grid/
+//
+// 解决方法：将下述逻辑封装到函数，四个边界作为参数，就可以实现多次调用了。
+vector<int> spiralOrder(vector<vector<int>>& grid) {
+    vector<int> data;
+    int i = 0, j = 0, m = grid.size() - 1, n = grid[0].size() - 1;
+    while (true) {
+        for (int k = j; k <= n; k++) {
+            data.push_back(grid[i][k]);
+        }
+        if (++i > m) break;
+        for (int k = i; k <= m; k++) {
+            data.push_back(grid[k][n]);
+        }
+        if (--n < j) break;
+        for (int k = n; k >= j; k--) {
+            data.push_back(grid[m][k]);
+        }
+        if (--m < i) break;
+        for (int k = m; k >= i; k--) {
+            data.push_back(grid[k][j]);
+        }
+        if (++j > n) break;
+    }
+    return data;
+}
