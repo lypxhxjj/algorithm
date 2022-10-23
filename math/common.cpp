@@ -12,13 +12,6 @@ int with_signed_n(int n) {
     return 0;
 }
 
-// 遍历 n 的每个 bit
-void for_bit(int n) {
-    while (n) {
-        n >>= 1;
-    }
-}
-
 // 遍历n的每个数字
 void for_dig(int n) {
     while (n) {
