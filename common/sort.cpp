@@ -33,3 +33,18 @@ int maxProductDifference(vector<int>& nums) {
     }
     return maxValues[0] * maxValues[1] - minValues[0] * minValues[1];
 }
+
+// 三个数比较大小：依旧放入数组中，排序解决
+//
+// 本题的思路，找规律，脑中模拟。
+//
+// 1753. 移除石子的最大得分 https://leetcode.cn/problems/maximum-score-from-removing-stones/
+int maximumScore(int a, int b, int c) {
+    vector<int> arr{a,b,c};
+    sort(arr.begin(), arr.end());
+    int delta = arr[2] - arr[1];
+    if (delta >= arr[0]) {
+        return arr[0] + arr[1];
+    }
+    return arr[0] + (arr[1] + arr[2] - arr[0]) / 2;
+}

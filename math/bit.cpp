@@ -23,6 +23,8 @@ int getXORSum(vector<int>& arr1, vector<int>& arr2) {
 
 // 如何对一个数字后几个bit进行异或：先与再异或
 //
+// 注意，此题要的是，让xor最大的那个k，所以一定比kxor小的。
+//
 // 1829. 每个查询的最大异或值 https://leetcode.cn/problems/maximum-xor-for-each-query/
 vector<int> getMaximumXor(vector<int>& nums, int maximumBit) {
     int threshold = 1 << maximumBit;

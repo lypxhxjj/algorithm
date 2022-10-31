@@ -88,7 +88,46 @@ vector<int> minDifference(vector<int>& nums, vector<vector<int>>& queries) {
     return res;
 }
 
+// 扩展：多次查询问题另外一种思路：离线计算
+// 将查询排序，有序处理；之后随着每个查询，将查询用到的数据逐步加入到参数数组中。
+//
+// 1847. 最近的房间 https://leetcode.cn/problems/closest-room/
+    vector<int> closestRoom(vector<vector<int>>& rooms, vector<vector<int>>& queries) {
+        sort(rooms.begin(), rooms.end(), [](auto& r1, auto& r2) { // rooms排序，是为了更好的将数据加入到参数数组中；
+            return r1[1] > r2[1];
+        });
+
+        for (int i = 0; i < queries.size(); i++) { // 因为要将查询排序，所以需要额外记录下查询数组最初的位置
+            queries[i].push_back(i);
+        }
+        sort(queries.begin(), queries.end(), [](auto& r1, auto& r2) { // 排序查询数组
+            return r1[1] > r2[1];
+        });
+        set<int> roomIds; // 参数数组
+        vector<int> res(queries.size());
+        for (int i = 0, j = 0; i < queries.size(); i++) {
+            while (j < rooms.size() && rooms[j][1] >= queries[i][1]) { // 计算查询之前，先将需要的参数加入到参数数组中
+                roomIds.insert(rooms[j][0]);
+                j++;
+            }
+            if (roomIds.size() == 0) { // 一般都需要考虑没数据，避免进入下面的逻辑。
+                res[queries[i][2]] = -1;
+                continue;
+            }
+            auto it = roomIds.lower_bound(queries[i][0]); // 执行查询，找到最接近的数字。这里没办法，只能使用最笨的寻找方法。
+            res[queries[i][2]] = *it;
+            if (it != roomIds.begin()) {
+                it--;
+                if (res[queries[i][2]] == 0 || abs(*it - queries[i][0]) <= abs(res[queries[i][2]] - queries[i][0])) {
+                    res[queries[i][2]] = *it;
+                }
+            }
+        }
+        return res;
+    }
+
 // 前缀和的结论：可用于求任意区间内，矩形接水的量（区间两侧为高墙）
+// 什么时候考虑这种模型？数据的变换，全都变换为了一个相同的值，或者符合某些规律的。
 //
 // 引申结论：当不是用于批量查询场景，前缀和可考虑优化为「两个前缀和变量」 + 双指针。
 //

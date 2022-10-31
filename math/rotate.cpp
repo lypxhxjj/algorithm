@@ -43,3 +43,18 @@ int findTheWinner(int n, int k) {
     }
     return res + 1;
 }
+
+// 是否是一个旋转数组：利用旋转的性质解决
+//
+// 1752. 检查数组是否经排序和轮转得到 https://leetcode.cn/problems/check-if-array-is-sorted-and-rotated/
+bool check(vector<int>& nums) {
+    if (nums.size() < 3) return true;
+    int cnt = 0;
+    for (int i = 0; i < nums.size(); i++) {
+        if (nums[i] > nums[(i + 1) % nums.size()]) { // 这个真的妙，取模之后你可以永远相信i + 1不越界。
+            cnt++;
+        }
+        if (cnt > 1) return false;
+    }
+    return true;
+}

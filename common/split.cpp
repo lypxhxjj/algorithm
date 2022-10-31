@@ -63,3 +63,36 @@ string countAndSay(int n) {
     }
     return res;
 }
+
+// trim + split，再次引入一个trim算法：trim算法也是标准库中没有，需要自己实现的那种。
+//
+// trim：用于格式化字符串：去掉前后缀空格，去掉中间多出来的空格。
+// 基本思路：i只用于寻找非空格元素，然后赋值给j，只不过赋值之前需要判断是否需要额外插入一个空格。
+//
+// 151. 反转字符串中的单词 https://leetcode.cn/problems/reverse-words-in-a-string/
+void trim(string& s) { 
+    int j= 0;
+    for (int i = 0; i < s.size(); i++) { 
+        if (s[i] == ' ') continue;
+        if (j > 0 && s[i - 1] == ' ') {
+            s[j++] = ' ';
+        }
+        s[j++] = s[i];
+    }
+    s.resize(j);
+}
+string reverseWords(string s) {
+    trim(s);
+    reverse(s.begin(), s.end());
+    int i = 0;
+    while (i < s.size()) { // 简单split了。
+        int j = i + 1;
+        while (j < s.size() && s[j] != ' ') j++;
+        reverse(s.begin() + i, s.begin() + j);
+        i = j + 1;
+    }
+    return s;
+}
+
+// 简单split题目
+// 1. 1759. 统计同构子字符串的数目 https://leetcode.cn/problems/count-number-of-homogenous-substrings/

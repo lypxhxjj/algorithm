@@ -86,10 +86,10 @@ int search(vector<int>& nums, int target) {
 // 
 // 为何会出现i = mid ？纯粹是因为算法本身，没有任何套路可言。
 //
-// 为何会出现特殊条件考虑？找不到很正常。
+// 为何return需要特殊处理？找不到很正常。
 // 小技巧：感觉除了寻找一个元素是否存在，都需要这个特殊条件。
 //
-// 理清含义特别重要：最后一个小于等于 === 找最后一个等于，有了明确的含义，就不会问出下面傻逼的问题了，因为代码怎么写是固定的，不能随意修改的：
+// 理清含义特别重要：最后一个小于等于 等价于 找最后一个等于，有了明确的含义，就不会问出下面傻逼的问题了，因为代码怎么写是固定的，不能随意修改的：
 // 1. 那能不能尝试不让 i = mid呢？比如将`nums[mid] <= target`中的`=`拿掉？不可以。因为可以考虑一堆等于的情况，此时一定需要i++才能到最后一个，只修改j是不行的。
 // 小技巧：写二分前一定理清楚要做啥。如何理清：一般会有第一个xxx，最后一个xxx，大于等于，大于，小于等于，小于，这些词语凑起来。
 // 
@@ -114,9 +114,9 @@ int lastLessEqual(vector<int>& nums, int target) {
 // 为啥需要考虑特殊位置？因为初始的[i,j]覆盖不了全部位置。
 //
 // 如何快速定位i和j最终到的范围？
-// 1. 先考虑mid，mid有没有比普通mid加了1？没有的话，说明mid的范围[i, j - 1]，有的话，说明mid的范围[i + 1, j]；
-// 2. 再考虑i和j，一旦确定mid的范围，那么i和j的范围就可以相应推导出来，i = mid，则i和mid的范围相同；j = mid - 1，则j和mid的范围比mid本身的范围左移了。
-// ps. 小技巧：每次可以将mid的范围写出来，这样可以避免i和j的越界。 
+// 1. 先考虑mid的范围。因为i != j，所以普通 mid 一定是 [i, j -1]; 非普通 mid 是 [i + 1, j];
+// 2. 再考虑i和j，简单由mid推导，i = mid，则i和mid的范围相同[i, j - 1]；j = mid - 1，则j的左边界比mid的左移了[i - 1, j]。
+// 小技巧：每次可以将mid的范围写出来，这样可以避免i和j的越界。 
 //
 // 35. 搜索插入位置 https://leetcode.cn/problems/search-insert-position/
 int searchInsert(vector<int>& nums, int target) {
@@ -135,7 +135,7 @@ int searchInsert(vector<int>& nums, int target) {
     return i;
 }
 
-// 二分可解决的一个问题，寻找峰值：有几个限制条件：相邻元素不相等，左右两边为负无穷。
+// 二分的一个场景，寻找峰值：有几个限制条件：相邻元素不相等，左右两边为负无穷。
 //
 // 可以看到代码：即基础二分。
 //
@@ -169,11 +169,11 @@ vector<int> findPeakGrid(vector<vector<int>>& mat) {
         auto colMaxIter = max_element(mat[mid].begin(), mat[mid].end());
         int col = colMaxIter - mat[mid].begin();
 
-        if ((mid == 0 || mat[mid][col] > mat[mid-1][col]) && *colMaxIter > mat[mid + 1][col]) {
+        if ((mid == 0 || mat[mid][col] > mat[mid-1][col]) && *colMaxIter > mat[mid + 1][col]) { // 相比一维峰值，这里需要额外判断是否提前返回，因为寻找mid的过程时间复杂度太高了。
             return {mid, col};
         }
             
-        if (*colMaxIter > mat[mid + 1][col]) {
+        if (*colMaxIter > mat[mid + 1][col]) { // 其余的和一维寻找一致，向j的方向比较，不必考虑边界。
             j = mid;
         } else {
             i = mid + 1;
@@ -186,7 +186,8 @@ vector<int> findPeakGrid(vector<vector<int>>& mat) {
 // 二分法的一个实践：最接近的一个数
 // 最基础的二分 + 单独考虑边界。
 //
-// 如果数组内元素各不相同，感觉可以借助峰值的二分，就无需考虑特殊条件了。
+// 优化1：如果数组内元素各不相同，感觉可以借助峰值的二分，就无需考虑特殊条件了。（因为abs(nums[i] - val)这个数组是存在峰值的）
+// 优化2：可以使用下题中的模板解决此题，所以其实代码是可以十分简化的。
 //
 // 1818. 绝对差值和 https://leetcode.cn/problems/minimum-absolute-sum-difference/
 int findClosest(vector<int>& nums3, int val) {
@@ -209,14 +210,16 @@ int findClosest(vector<int>& nums3, int val) {
 
 // 最接近的一个数进阶：最接近的k个数：
 //
-// TODO:
+// 1. 本质区别？这里寻找的是k个数，而非1个数，所以j的初始化位置就是sz-k，即j是最后一个有效位置；
+// 2. 比较mid的过程？和峰值问题类似，也是比较的mid + 1，即这里的mid+k；
+// 3. 特殊化，假如k为1，那不就是最接近的那个数啦？事实证明，确实是可以的。代码就特别简单了。
 //
 // 658. 找到 K 个最接近的元素 https://leetcode.cn/problems/find-k-closest-elements/
 vector<int> findClosestElements(vector<int>& arr, int k, int x) {
-    int i = 0, j = (int)arr.size() - k;
+    int i = 0, j = (int)arr.size() - k; 
     while (i < j) {
         int mid = (i + j) / 2;
-        if (x - arr[mid] > arr[mid + k] - x) {
+        if (x - arr[mid] > arr[mid + k] - x) { // 依旧是和j那个方向比较
             i = mid + 1;
         } else {
             j = mid;
@@ -224,6 +227,32 @@ vector<int> findClosestElements(vector<int>& arr, int k, int x) {
     }
     return {arr.begin() + i, arr.begin() + i + k};
 }
+
+// 二分的一个应用：满足单调性 && 具体算法没有或者很乱
+//
+// 有些问题算法很难推导，比如游戏问题中奇怪的游戏规则。这个时候，可以看看，参数和结果是否存在单调性关系，存在的话，即可使用二分。
+// 小技巧：一个问题不会的时候，可以考虑二分试试。
+// 
+// 1760. 袋子里最少数目的球 https://leetcode.cn/problems/minimum-limit-of-balls-in-a-bag/
+    int minimumSize(vector<int>& nums, int maxOperations) {
+        int maxVal = *max_element(nums.begin(), nums.end());
+        int i = 1, j = maxVal;
+        while (i < j) {
+            int mid = (i + j) >> 1;
+
+            int currCnt = 0; // 这块逻辑是用来计算mid详情的，成本也比较高，但是没办法直接判断返回的。
+            for (int num : nums) {
+                currCnt += (num - 1) / mid;   // 小技巧，很多时候没办法直接除的时候，可以参考先减一再除的方法
+            }
+
+            if (currCnt > maxOperations) {
+                i = mid + 1;
+            } else {
+                j = mid;
+            }
+        }
+        return i;
+    }
 
 // 数学公式与二分相结合：当已存在数学公式，然后求一个值，此时可以考虑二分
 //
