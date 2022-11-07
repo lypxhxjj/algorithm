@@ -10,7 +10,7 @@ int computeArea(int ax1, int ay1, int ax2, int ay2, int bx1, int by1, int bx2, i
 
 // 9 * 9 矩阵的特点：
 // 1. visited数组写法：bool rows[10][10] = {0}, cols[10][10] = {0}, square[10][10] = {0};
-// 2. square的索引定位：index = i / 3 * 3 + j / 3;
+// 2. square的索引定位（大方块的路径压缩）：index = i / 3 * 3 + j / 3;
 //
 // 36. 有效的数独 https://leetcode.cn/problems/valid-sudoku/
 // 37. 解数独 https://leetcode.cn/problems/sudoku-solver/

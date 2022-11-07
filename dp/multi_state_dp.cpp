@@ -33,7 +33,7 @@ int countSpecialSubsequences(vector<int>& nums) {
 // 为啥是多状态dp？当前元素作为子序列的最后一个元素，
 // 1. 当前元素是子序列的奇数索引：期待前面的状态是一个偶数个的子序列，并且尽量大；
 // 2. 当前元素是子序列的偶数索引：期待前面的状态是一个奇数个的子序列，并且尽量大。
-// 3. 期待归期待，也可以没有，所以初始化为0。
+// 3. 期待归期待，也可以没有，没有对应初始化为0。
 //
 // 两个状态是啥？
 // oddSum：当前为止有奇数个元素时的最优解；
@@ -45,7 +45,7 @@ int countSpecialSubsequences(vector<int>& nums) {
 long long maxAlternatingSum(vector<int>& nums) {
     if (nums.size() == 0) return 0;
     long long oddSum = 0; // 最后一个是奇数索引
-    long long evenSum = nums[0]; // 最后一个是偶数索引；
+    long long evenSum = 0; // 最后一个是偶数索引；
     for (int i = 0; i < nums.size(); i++) {
         long long oddSum1 = oddSum, evenSum1 = evenSum;
         oddSum = max(oddSum1, evenSum1 - nums[i]);
@@ -92,17 +92,15 @@ int maxProduct(vector<int>& nums) {
     return res;
 }
 
-// 多状态逻辑简化，去掉curr的范围讨论：当前元素必选，简化状态的变更
+// 多状态逻辑简化，去掉curr的范围讨论
 //
-// 一致性：变量的含义是不变的，根据期望值可以推导出表达式。
-// 不一致性：由于当前元素必选，状态的更新无非来自于几种，和num本身的正负符号没啥关系。
+// 去掉curr范围的根据：新的状态和res一定能从上个状态和当前值中推导出来，使用min/max等方法来去掉curr的讨论。
 //
-// 再次强调下更新状态的过程：
-// 1. res的更新很简单，要求positiveNum, minusNum两个状态一定有非常明确的，就是可以直接用于计算num的那种。
-// 2. 下面两个状态的更新有三个渠道：
-// (1)使用自己以及另外的状态，加上当前num计算得到；
-// (2)不使用历史状态计算得到；（但是这种情况其实已经合并到第一种情况中了，所以你可以认为一定需要使用历史状态来计算。）
-// (3)为了方便计算res，而存在的一些边界,比如此题的0.
+// 更新状态的过程：
+// 1. res的更新，要求positiveNum, minusNum含义十分明确，可直接用于计算num的那种。
+// 2. 状态变更：
+// （1）状态之间的相互转化。
+// （2）不满足要求的，重置为初始状态1。（时刻保持明确状态含义）
 //
 // (同上一题) 152. 乘积最大子数组 https://leetcode.cn/problems/maximum-product-subarray/
 int maxProduct(vector<int>& nums) {
@@ -126,6 +124,10 @@ int maxProduct(vector<int>& nums) {
 // 1. 已删除的前缀和;
 // 2. 未删除的前缀和。
 //
+// 状态变更逻辑：
+// 1. 状态之间的相互转化；
+// 2. 不满足含义的，设置为初始值。（所以可以把0的逻辑拆到一个if中去，更好理解）
+//
 // 1186. 删除一次得到子数组最大和 https://leetcode.cn/problems/maximum-subarray-sum-with-one-deletion/
 int maximumSum(vector<int>& arr) {
     int hasDeleteSum = 0, hasNotDeleteSum = 0;
@@ -134,6 +136,60 @@ int maximumSum(vector<int>& arr) {
         res = max(res, max(hasDeleteSum + num, hasNotDeleteSum + num));
         hasDeleteSum = max(hasDeleteSum + num, max(hasNotDeleteSum, 0));
         hasNotDeleteSum = max(hasNotDeleteSum + num, 0);
+    }
+    return res;
+}
+
+// 多状态问题
+//
+// 状态是啥？
+// 1. 负数乘积的最大长度；
+// 2. 正数乘积的最大长度；
+// 3. 初始状态为0个。
+//
+// 下面贴出了两种解法：
+// 1. 新的状态一次到达最终值；
+// 2. 新的状态分两步到达最终值。（推荐，这样新旧状态的表达式变得特别简单）
+//
+// 灵魂拷问：为啥本题中的num的分类讨论没有被去掉？
+// 答：因为num符号不同，计算新状态的表达式完全不同。之前可以使用min/max合并if，是因为在max/min中，在不同的场景可以明确淘汰掉其中一项。本题中不行。
+//
+// 1567. 乘积为正数的最长子数组长度 https://leetcode.cn/problems/maximum-length-of-subarray-with-positive-product/
+int getMaxLen(vector<int>& nums) {
+    int minusMaxNum = 0, negativeMaxNum = 0;
+    int res = 0;
+    for (int num : nums) {
+        if (num == 0) {
+            minusMaxNum = negativeMaxNum = 0;
+        } else if (num > 0) {
+            minusMaxNum = minusMaxNum == 0 ? 0 : minusMaxNum + 1;
+            negativeMaxNum++;
+        } else {
+            int tmpMinusMaxNum = minusMaxNum;
+            minusMaxNum = negativeMaxNum == 0 ? 1 : negativeMaxNum + 1;
+            negativeMaxNum = tmpMinusMaxNum == 0 ? 0 : tmpMinusMaxNum + 1;
+        }
+        res = max(res, negativeMaxNum);
+    }
+    return res;
+}
+int getMaxLen(vector<int>& nums) {
+    int minusMaxNum = 0, negativeMaxNum = 0;
+    int res = 0;
+    for (int num : nums) {
+        if (num == 0) {
+            minusMaxNum = negativeMaxNum = 0;
+        } else if (num > 0) {
+            minusMaxNum++;
+            negativeMaxNum++;
+        } else {
+            int tmpMinusMaxNum = minusMaxNum;
+            minusMaxNum = negativeMaxNum + 1;
+            negativeMaxNum = tmpMinusMaxNum + 1;
+        }
+        if (minusMaxNum == 1 && num >= 0) minusMaxNum = 0;
+        if (negativeMaxNum == 1 && num <= 0) negativeMaxNum = 0;
+        res = max(res, negativeMaxNum);
     }
     return res;
 }

@@ -39,3 +39,35 @@ vector<int> getMaximumXor(vector<int>& nums, int maximumBit) {
     reverse(res.begin(), res.end());
     return res;
 }
+
+// 位运算问题：有些问题明显只是bit级别的修改，这个时候只按位运算去考虑问题就是最好的了。
+//
+// 1558. 得到目标数组的最少函数调用次数 https://leetcode.cn/problems/minimum-numbers-of-function-calls-to-make-target-array/
+int oneNum(int n) {
+    int res = 0;
+    while (n) {
+        n &= n - 1;
+        res++;
+    }
+    return res;
+}
+int mostLeftShift(int n) {
+    if (n == 0) return 0;
+    int res = 0;
+    for (int i = 0; i < 32; i++) { // 位运算一言不合就32次循环走起。
+        n >>= 1;
+        if (n == 0) {
+            return i;
+        }
+    }
+    return -1;
+}
+int minOperations(vector<int>& nums) {
+    int leftShiftAll = 0;
+    int res = 0;
+    for (int num : nums) {
+        leftShiftAll = max(leftShiftAll, mostLeftShift(num));
+        res += oneNum(num);
+    }
+    return res + leftShiftAll;
+}

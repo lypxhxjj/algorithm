@@ -19,7 +19,7 @@ int maxArea(vector<int>& height) {
     return res;
 }
 
-// 双指针，i一般用于遍历数组，j的含义是 最后一个有效元素 VS 有效元素的下一个。就看第一个位置是否有效了
+// 双指针基本模型，i一般用于遍历数组，j的含义是 最后一个有效元素 VS 有效元素的下一个。就看第一个位置是否有效了
 //
 // 26. 删除有序数组中的重复项: https://leetcode.cn/problems/remove-duplicates-from-sorted-array/
 // 27. 移除元素: https://leetcode.cn/problems/remove-element/
@@ -33,3 +33,22 @@ int removeDuplicates(vector<int>& nums) {
     }
     return j + 1;
 }
+
+// 双指针，当j比i还要快的时候。
+//
+// 一般情况下，i遍历每个元素，j在左边，遍历的比较慢。而一旦遇到快的，完了，手忙脚乱了。
+// 思路：少的那个是i不变，多的那个j每次在循环内部多做一些事情。
+//
+// 1556. 千位分隔数 https://leetcode.cn/problems/thousand-separator/
+    string thousandSeparator(int n) {
+        string str = to_string(n);
+        string res;
+        res.resize(str.size() + (str.size() - 1) / 3);
+        for (int i = str.size() - 1, j = res.size() - 1, k = 1; i >= 0; i--, j--, k++) {
+            res[j] = str[i];
+            if (k % 3 == 0 && i != 0) {
+                res[--j] = '.';
+            }
+        }
+        return res;
+    }

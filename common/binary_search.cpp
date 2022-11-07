@@ -234,25 +234,56 @@ vector<int> findClosestElements(vector<int>& arr, int k, int x) {
 // 小技巧：一个问题不会的时候，可以考虑二分试试。
 // 
 // 1760. 袋子里最少数目的球 https://leetcode.cn/problems/minimum-limit-of-balls-in-a-bag/
-    int minimumSize(vector<int>& nums, int maxOperations) {
-        int maxVal = *max_element(nums.begin(), nums.end());
-        int i = 1, j = maxVal;
-        while (i < j) {
-            int mid = (i + j) >> 1;
+int minimumSize(vector<int>& nums, int maxOperations) {
+    int maxVal = *max_element(nums.begin(), nums.end());
+    int i = 1, j = maxVal;
+    while (i < j) {
+        int mid = (i + j) >> 1;
 
-            int currCnt = 0; // 这块逻辑是用来计算mid详情的，成本也比较高，但是没办法直接判断返回的。
-            for (int num : nums) {
-                currCnt += (num - 1) / mid;   // 小技巧，很多时候没办法直接除的时候，可以参考先减一再除的方法
-            }
-
-            if (currCnt > maxOperations) {
-                i = mid + 1;
-            } else {
-                j = mid;
-            }
+        int currCnt = 0; // 这块逻辑是用来计算mid详情的，成本也比较高，但是没办法直接判断返回的。
+        for (int num : nums) {
+            currCnt += (num - 1) / mid;   // 小技巧，很多时候没办法直接除的时候，可以参考先减一再除的方法
         }
-        return i;
+
+        if (currCnt > maxOperations) {
+            i = mid + 1;
+        } else {
+            j = mid;
+        }
     }
+    return i;
+}
+
+// 再来一道：依然是没有具体算法。
+//
+// 小技巧：本质就是猜 + 验证 的过程。而这个过程一般最差时间复杂度也就是o(nlogn)，完全比o(n^2)快。
+//
+// 1552. 两球之间的磁力 https://leetcode.cn/problems/magnetic-force-between-two-balls/
+bool isOk(vector<int>& position, int m, int mid) {
+    int curr = position[0];
+    for (int i = 1; i < position.size(); i++) {
+        if (position[i] - curr >= mid) {
+            m--;
+            curr = position[i];
+        }
+        if (m == 1) return true; // 第一个curr已经占了一个位置
+    }
+    return false;
+}
+int maxDistance(vector<int>& position, int m) {
+    sort(position.begin(), position.end());
+        
+    int i = 0, j = position.back();
+    while (i < j) {
+        int mid = (i + j)/ 2 + 1;
+        if (isOk(position, m, mid)) {
+            i = mid;
+        } else {
+            j = mid - 1;
+        }
+    }
+    return i;
+}
 
 // 数学公式与二分相结合：当已存在数学公式，然后求一个值，此时可以考虑二分
 //
