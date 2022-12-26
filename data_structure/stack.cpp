@@ -1,5 +1,6 @@
 
-// 配对问题，一般使用的是栈：
+// 栈-消消乐问题
+//
 // 1. 栈中保存的都是索引；
 // 2. 消消乐时，正常能算出的是从i到消位置的大小，但是处理不了()()的情况，所以不能那么计算；
 // 3. 根据消消乐，遇到左括号入栈是没有问题的；但是遇到右括号，就需要分类讨论了（假设此时栈中是A B，到来的是C）
@@ -35,6 +36,8 @@ int longestValidParentheses(string s) {
     return res;
 }
 
+// 消消乐问题优化-优化掉栈的使用
+//
 // 一个元素的消消乐，往往可以将栈的使用优化掉，代码很简单：
 // 1. 之前的栈，使用两个变量来代替。不能只使用一个leftNum，因为需要知道完成消消乐时，总的长度信息，长度信息是left + right，单靠一个left不成事；
 // 2. 小结论：不论哪边遍历，一旦发现leftNum == rightNum，那么其实对于当前「right」来说，[left, right]就已经是最大长度了。
@@ -65,6 +68,8 @@ int longestValidParentheses(string s) {
     return res;
 }
 
+// 消消乐问题-一次消掉多个。
+//
 // 再次消消乐问题：消消乐是栈，栈一般也可以用数组实现，数组更加灵活，可以取到多个元素去比较，可以一次出栈多个
 // 本次的消消乐：一次消掉一个substr。
 //
@@ -87,3 +92,43 @@ string removeOccurrences(string s, string part) {
     }
     return res;
 }
+
+// 栈的使用-单调栈：o(1)时间内获取最值
+//
+// 本题单调栈用于寻找栈内最小值，只是单调栈的一个特别小的应用。因为栈先进先出，所以对应的最小栈也需要先进先出。
+//
+// 为啥此题中的单调栈不会淘汰其他元素？
+//
+// 155. 最小栈 https://leetcode.cn/problems/min-stack/
+class MinStack {
+    stack<int> st;
+    stack<int> minSt;
+public:
+    MinStack() {
+    }
+    
+    void push(int val) {
+        if (minSt.empty() || minSt.top() >= val) {
+            minSt.push(val);
+        }
+        st.push(val);
+    }
+    
+    void pop() {
+        int curr = st.top();
+        st.pop();
+        if (curr == minSt.top()) {
+            minSt.pop();
+        }
+    }
+    
+    int top() {
+        return st.top();
+    }
+    
+    int getMin() {
+        return minSt.top();
+    }
+};
+
+// 单调队列-相比之下，单调队列就比较有用了

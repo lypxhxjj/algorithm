@@ -8,14 +8,133 @@
 // 1. bfs（推荐）
 // 2. dfs
 
-// 拓扑排序，输出节点序列。
-// 解法1：bfs。很好理解的三步。
-// 1. 不需要visited数组，因为环中的节点一定入度变为不了0.
-// 2. 邻接矩阵的方向是父->子。A依赖B先完成，所以B是父节点。
+// 图论问题：是否有环
 //
-// 优雅的算法代码，就是不需要考虑各种乱七八糟的情况，比如visited数组。
+// 方法1：拓扑排序，基本步骤如下：
+// 1. 构建入度数组，和临界表；（2个辅助数组）
+// 2. 创建一个队列，将入度为0的入队；
+// 3. bfs法遍历队列。每次出队一个，并将见得入度为0的入队。
+// 4. 如上是拓扑排序的基本思路。本题中是否有环，需要一个变量count，代表出队过多少元素（入队也可以，但是出队简单）。最后比较count和节点总数即可。
 //
 // 207. 课程表 https://leetcode.cn/problems/course-schedule/
+bool canFinish(int numCourses, vector<vector<int>>& prerequisites) {
+    vector<int> inDegrees(numCourses);
+    vector<vector<int>> edges(numCourses);
+
+    for (auto& p : prerequisites) {
+        inDegrees[p[0]]++;
+        edges[p[1]].push_back(p[0]);
+    }
+
+    queue<int> q;
+    for (int i = 0; i < inDegrees.size(); i++) {
+        if (inDegrees[i] == 0) {
+            q.push(i);
+        }
+    }
+
+    int popCnt = 0;
+    while (!q.empty()) {
+        int curr = q.front();
+        q.pop();
+        popCnt++;
+
+        for (int i = 0; i < edges[curr].size(); i++) {
+            if (--inDegrees[edges[curr][i]] == 0) {
+                q.push(edges[curr][i]);
+            }
+        }
+    }
+    return popCnt == numCourses;
+}
+
+// 图论问题：是否有环
+//
+// 方法2：status法dfs
+// 1. （一般）正常遍历图，创建临界矩阵后，在最外层，就是从0号节点开始遍历，遍历到第n个节点；
+// 2. （一般）visited数组：一般一定需要考虑重复遍历问题，那么一定需要visited数组去重。
+// 3. （本题）本题难点在于，如何知晓一个元素被遍历过，是正常的还是出现环了？
+// 4. （本题）status数组：0:未遍历过；1: 遍历中；2: 遍历结束。使用时，也有其自己的特点，参考下面代码。
+//
+// 207. 课程表 https://leetcode.cn/problems/course-schedule/
+bool dfs(vector<vector<int>>& edges, int i, vector<int>& status) {
+    // 这里无需判断是否超出边界，因为节点来源于临界矩阵，一定不溢出
+    if (status[i] == 1) return true;
+    if (status[i] == 2) return false; // 第一步，校验；
+    status[i] = 1;                    // 第二步，临时设置；
+    for (int j = 0; j < edges[i].size(); j++) {
+        if (dfs(edges, edges[i][j], status)) {
+                return true;
+            }
+        }
+    status[i] = 2;                   // 第三步，最终设置
+    return false;
+}
+
+bool canFinish(int numCourses, vector<vector<int>>& prerequisites) {
+    vector<vector<int>> edges(numCourses);
+    for (int i = 0; i < prerequisites.size(); i++) {
+        edges[prerequisites[i][1]].push_back(prerequisites[i][0]);
+    }
+    vector<int> status(numCourses); // 0 代表未访问过，1代表本次访问，2代表之前访问过
+    for (int i = 0; i < numCourses; i++) {
+        if (dfs(edges, i, status)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+// 图论问题：按依赖关系输出序列
+//
+// 方法1：dfs
+// 1. (一般)如果没有说明一定没有环，那么就需要考虑环，那么就可以使用环的模板来做题。
+// 2. (本题)关于dfs的遍历顺序，脑中想象这么一副图，dfs遍历的时候，其实是从随机一个点开始向下的，对于本题，有顺序的前提下，就需要特别考虑下了。
+// 3. (本题)如何解决：反向遍历：不论你从哪里开始，从后向前入结果（从叶子节点到根节点）；最后reverse下即可。
+//
+// 210. 课程表 II https://leetcode.cn/problems/course-schedule-ii/
+bool dfs(vector<vector<int>>& edges, int i, vector<int>& status, vector<int>& res) {
+    // 这里无需判断是否超出边界，因为节点来源于临界矩阵，一定不溢出
+    if (status[i] == 1) return true;
+    if (status[i] == 2) return false;
+
+    status[i] = 1;                  
+    for (int j = 0; j < edges[i].size(); j++) {
+        if (dfs(edges, edges[i][j], status, res)) {
+            return true;
+        }
+    }
+    status[i] = 2;                 
+    res.push_back(i); // 最后遍历到的最先入结果
+    return false;
+    }
+    
+vector<int> findOrder(int numCourses, vector<vector<int>>& prerequisites) {
+    vector<int> status(numCourses);
+    vector<vector<int>> edges(numCourses);
+
+    for (auto& p : prerequisites) {
+        edges[p[1]].push_back(p[0]);
+    }
+
+    vector<int> res;
+    for (int i = 0; i < numCourses; i++) {
+        if (dfs(edges, i, status, res)) {
+            return {};
+        }
+    }
+    reverse(res.begin(), res.end());
+    return res;
+}
+
+// 图论问题：按依赖关系输出序列
+//
+// 方法2：拓扑排序
+// 1. (一般)拓扑排序就是用来解决这种问题的；
+// 2. (本题)本题的特殊性，在于不一定存在结果，所以本质也是使用的判断是否有环的模板，在最后判断下就可以了，其余的都一样
+//
+// 拓扑排序和普通bfs的区别：前者不需要visited数组。
+//
 // 210. 课程表 II https://leetcode.cn/problems/course-schedule-ii/
 vector<int> findOrder(int numCourses, vector<vector<int>>& prerequisites) {
     // 1. 构建邻接矩阵和入度表；
@@ -49,85 +168,14 @@ vector<int> findOrder(int numCourses, vector<vector<int>>& prerequisites) {
     return res.size() == numCourses ? res : vector<int>();
 }
 
-// 拓扑排序解法2：dfs
-// 1. 不仅仅需要使用visited数组，还需要复杂的visited数组，需要包含「访问中」，「访问结束」两个状态。visited数组用于判断是否有环，dfs过程中访问到「访问中」状态，说明有环；
-// 2. 邻接矩阵需要是反向的，因为需要优先遍历父节点，所以需要快速根据子节点找到父节点。
+// 图论问题3：任意两个节点是否存在依赖关系
 //
-// 但是visited数组使用和校验还是很简洁的。很优雅。
+// 解法1：全部依赖关系的问题：floyd算法（floyd算法太漂亮了的说。）
 //
-// 210. 课程表 II https://leetcode.cn/problems/course-schedule-ii/
-bool dfs(int i, vector<vector<int>>& reverseEdges, vector<int>& visited, vector<int>& res) {
-    if (visited[i] == 1) return false;
-    if (visited[i] == 2) return true; // 访问到2，说明有环。
-    visited[i] = 2;
-    for (int j = 0; j < reverseEdges[i].size(); j++) { // 找父节点。
-        if (dfs(reverseEdges[i][j], reverseEdges, visited, res)) {
-            return true;
-        }
-    }
-    visited[i] = 1;
-    res.push_back(i); // 遍历完父节点或者没有父节点，才遍历到自己。
-    return false;
-}
-vector<int> findOrder(int numCourses, vector<vector<int>>& prerequisites) {
-    vector<int> visited(numCourses); // 1代表访问过；2代表访问中（在回溯栈中）
-    vector<vector<int>> reverseEdges(numCourses);
-    for (auto& p : prerequisites) {
-        reverseEdges[p[0]].push_back(p[1]);
-    }
-
-    vector<int> res;
-    for (int i = 0; i < numCourses; i++) {
-        if (dfs(i, reverseEdges, visited, res)) {
-            return {};
-        }
-    }
-    return res;
-}
-
-// 普通dfs验证是否有环：对visited数组恢复现场的条件下，访问到了visited[true]的点。即为有环。
-// 理解上，从i开始的一条递归线能到头。
-//
-// 如下代码会超时，因为存在了大量重复计算，可以加个cache避免重复计算。（没有把标准答案放在这里，避免cache影响阅读代码逻辑。）
-//
-// PS. visited的使用可以好好总结总结，有的放在外边有的放在里边，有的需要恢复现场有的不需要，好乱。
-//
-// 207. 课程表 https://leetcode.cn/problems/course-schedule/
-bool dfs(vector<vector<int>>& mat, int i,  vector<bool>& visited) {
-    visited[i] = true;
-
-    for (int j = 0; j < mat[i].size(); j++) {
-        int course = mat[i][j];
-        if (visited[course]) { // 访问到了之前访问过的。
-            return false;
-        }
-        if (!dfs(mat, course, visited)) {
-            return false;
-        }
-    }
-
-    visited[i] = false; // 恢复现场很重要
-    return true;
-}
-
-bool canFinish(int numCourses, vector<vector<int>>& prerequisites) {
-    vector<vector<int>> mat(numCourses);
-    for (auto& p : prerequisites) {
-        mat[p[1]].push_back(p[0]);
-    }
-
-    vector<bool> visited(numCourses);
-    for (int i = 0 ; i < numCourses; i++) {
-        if (!dfs(mat, i, visited)) {
-            return false;
-        }
-    }
-    return true;
-}
-
-// 没有环的前提下，任意两点是否存在依赖关系：floyd算法
-//
-// floyd算法太漂亮了的说。
+// 解法2： 拓扑排序能解决这个问题吗？当然可以，不过真的是不优雅，思路如下：
+// 1. (一般) 就是上述拓扑排序的模板。根据这个模板，可以方便拿到当前节点的子节点有谁；
+// 2. (本题) 遍历到当前节点，其实可以得到的是与当前节点依赖的所有祖先节点，所以在将子节点加入到队列中去之前，先将当前节点以及当前节点的所有祖先节点加到子节点的祖先集合中去。
+//    这样的到的依赖关系依然只是单向的，所以最后查询的时候，还需要两边都查下。
 //
 // 1462. 课程表 IV https://leetcode.cn/problems/course-schedule-iv/
 vector<bool> checkIfPrerequisite(int numCourses, vector<vector<int>>& prerequisites, vector<vector<int>>& queries) {
@@ -149,5 +197,39 @@ vector<bool> checkIfPrerequisite(int numCourses, vector<vector<int>>& prerequisi
     for (int i = 0; i < queries.size(); i++) {
         res[i] = relation[queries[i][1]][queries[i][0]];
     }
+    return res;
+}
+
+// 图论问题4：深拷贝图
+//
+// 题目条件：
+// 1. 一般情况给出的是节点个数 + 依赖关系，此时的图不一定连通，可能有环
+// 2. 还有一种，和树类似，只给出Node*，代表一个图，此时图一定是连通的，但是可能有环。（特例就是自己指向自己）
+// 3. 二者的关系是啥？Node*简化了获取孩子节点的方式，不然还需要自己构建临界表。
+// 
+// 图的遍历方式暂时有几种：
+// 1. 普通dfs：需要visited数组；
+// 2. 普通bfs：需要visited数组；
+// 3. 拓扑排序：不需要visited数组。
+//
+// visited数组的两个含义：
+// 1. 代表是否访问过 bool 类型；（不需要返回值）
+// 2. 代表cache，缓存结果。（需要返回值）
+//
+// 本题难点就在于 visited 数组：一般的visited数组，都是直接放在函数开头和结尾就好了。但是此题不是，此题需要放在开头和递归之前。
+//
+// 133. 克隆图 https://leetcode.cn/problems/clone-graph/
+unordered_map<Node*, Node*> cache; // 凡是使用hashmap的地方，其实都可以考虑使用数组优化，如果节点值各不相同，那么就可以优化为数组。
+    
+Node* cloneGraph(Node* node) {
+    if (node == nullptr) return nullptr;
+    if (cache.find(node) != cache.end()) return cache[node];
+
+    Node* res = new Node(node->val);
+    cache[node]= res; // 竟然需要放在这里，更深层次原因待探究。
+    for (int i = 0; i < node->neighbors.size(); i++) {
+        res->neighbors.push_back(cloneGraph(node->neighbors[i]));
+    }
+
     return res;
 }

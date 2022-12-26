@@ -1,52 +1,73 @@
 // 二分查找是为数不多的，可以将时间复杂度降低到logn的算法。
 //
-// 定义「基础二分」，到处都很基础，很多问题可以基于基础二分解决；不能解决的会指出其特殊点。
-// 1. 基础二分的含义：lower_bound但是不会到达end()
-// 2. 写二分的过程比较简单，找到mid后，能淘汰掉一半就直接淘汰就好了。本质就在这里了。
+
+// 二分的细节点：
+// 1. while (i < j) 决定了 i==j时不会进入循环，所以需要特殊考虑i==j，即只有一个元素的情况；
+// 2. int mid = (i + j) >> 1; 这里保证了 mid一定小于j，但可能等于i，所以一定不能出现 i = mid；
+// 3. nums[mid] == target 判断是否等于这一步不是必须的，但是如果每次二分的成本比较高，那么就是必须的，比如矩阵内的二分，每次二分需要o(n)复杂度；
+// 4. nums[mid] > nums[j] 优先比较j和mid + 1，因为mid一定小于j，所以不要拿mid和i比较；
 while (i < j) {
     int mid = (i + j) / 2;
-    if (nums3[mid] == val) { // 可以不考虑。
+    if (nums3[mid] == val) {
         return mid;
-    } else if (nums3[mid] > val) { // 假如mid与i/j有关（无关最好了），那么优先使用j。因为mid一定不等于j。
+    } else if (nums3[mid] > val) { 
         j = mid;
     } else {
         i = mid + 1;
     }
 }
 
+// 二分的使用场景汇总：
+//
+// 1. 最值问题：一般会有第一个xxx，最后一个xxx，大于等于，大于，小于等于，小于，这些词语凑起来。
+// 2. 猜 + 验证：一般处理没有思路的问题；
+// 3. 特殊场景问题：
+// (1) 两个有序数组寻找第k小问题；每次淘汰掉k/2
+// (2) 循环数组问题；根据有序的那部分淘汰
 
- // 第k小，从1开始
+
+// 二分查找的典型结论：两个有序数组查找第k小问题 -> 可以使用二分。
+//
+// 二分可以放心使用递归：二分的递归深度绝对不会很高，所以可以放心使用递归简化代码。
+// 如果递归：边界条件的处理就很重要：
+// 1. 两个数组的边界问题：一定确保某一个数组的个数多，简化分类讨论逻辑。
+// 2. 每个参数的边界问题，包括i和k的边界。
+//
+// 第k小问题的编程方式：第几 《=》 长度len -> 索引idx关系。
+// ps. 只要将个数len，索引idx分别计算出来，那么写起代码来就非常爽了。
+//
+// 淘汰哪一半？每个数组取k/2个，特殊值法（只有两个元素），淘汰掉小的那个部分。最终值在小的后边，大的前边。
+//
+// 最后决定使用total/2，是否加减1的问题上：特殊值法。只要两个元素，那么期望找谁，这里需要注意索引与第k小的关系。
+// 
+// 4. 寻找两个正序数组的中位数: https://leetcode.cn/problems/median-of-two-sorted-arrays/
 int findKth(vector<int>& nums1, vector<int>& nums2, int i, int j, int k) {
-    if (nums1.size() - i > nums2.size() - j) { // 简化问题
+    if (nums1.size() - i > nums2.size() - j) {
         return findKth(nums2, nums1, j, i, k);
     }
-    if (nums1.size() == i) { // 边界条件；
+    if (i == nums1.size()) {
         return nums2[j + k - 1];
     }
-    if (k == 1) { // 边界条件。
+    if (k == 1) {
         return min(nums1[i], nums2[j]);
     }
 
-    int leftLen = nums1.size() - i > k / 2 ? k / 2 : nums1.size() - i; // 无脑写，索引与个数的转化。
-    int leftIndex = i + leftLen - 1;
-    int rightLen = k - leftLen;
-    int rightIndex = j + rightLen - 1;
-    if (nums1[leftIndex] < nums2[rightIndex]) {
-        return findKth(nums1, nums2, leftIndex + 1, j, k - leftLen);
+    int len1 = nums1.size() - i >= k / 2 ? k / 2 : nums1.size() - i;
+    int idx1 = i + len1 - 1;
+    int len2 = k - len1;
+    int idx2 = j + len2 - 1;
+    if (nums1[idx1] < nums2[idx2]) {
+        return findKth(nums1, nums2, idx1 + 1, j, k - len1);
     } else {
-        return findKth(nums1, nums2, i, rightIndex + 1, k - rightLen);
+        return findKth(nums1, nums2, i, idx2 + 1, k - len2);
     }
 }
-// 两个有序数组的中位数问题，好喜欢这个题，好多小技巧。<4>
 double findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2) {
     int total = nums1.size() + nums2.size();
-    int leftMid = (total - 1) / 2;
-    int leftVal = findKth(nums1, nums2, 0, 0, leftMid + 1); // 总数total->中间偏左索引->第k个
-    if (total % 2 == 1) {
-        return leftVal;
-    }
-    int rightVal = findKth(nums1, nums2, 0, 0, total / 2 + 1);
-    return (double(leftVal) + rightVal) / 2;
+    if ((total & 1) == 1) {
+        return findKth(nums1, nums2, 0, 0, total / 2 + 1);
+    } 
+    return ((double)findKth(nums1, nums2, 0, 0, total / 2) + (double)findKth(nums1, nums2, 0, 0, total / 2 + 1)) / 2.0 ;
 }
 
 // 经典二分：近似有序的数组查找，涉及到的技巧如下：
@@ -60,7 +81,7 @@ int search(vector<int>& nums, int target) {
         return 0;
     }
     int i = 0, j = nums.size() - 1;
-    while (i < j) {
+    while (i < j) { // [i, j], mid: [i, j)，mid - 1: [i - 1, j - 1), mid + 1: [i + 1, j]
         int mid = i + (j - i) / 2;
         if (nums[mid] == target) {
             return mid;
@@ -219,7 +240,7 @@ vector<int> findClosestElements(vector<int>& arr, int k, int x) {
     int i = 0, j = (int)arr.size() - k; 
     while (i < j) {
         int mid = (i + j) / 2;
-        if (x - arr[mid] > arr[mid + k] - x) { // 依旧是和j那个方向比较
+        if (x - arr[mid] > arr[mid + k] - x) { // 依旧是和j那个方向比较，其实本质类似于比较mid和mid+1
             i = mid + 1;
         } else {
             j = mid;

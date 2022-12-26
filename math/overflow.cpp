@@ -38,3 +38,64 @@ bool isOverflow2(int base, int dig) {
 bool isOverflow(long long base, int dig) {
     return false;
 }
+
+// 总之，推荐的方式首选long long；其次是INT_MAX校验法。(long long的比较简单，这里代码就不写了)
+//
+// 负数转化为正数：一般就是单独考虑INT_MIN + 直接转化就可以，逻辑一般都比较简单；
+//
+// 主干编程法：可以先不考虑溢出，写代码，最后再考虑溢出。
+//
+// 溢出的方式：一行代码，与INT_MAX/10，与INT_MAX% 10相比较即可。
+//
+// 7. 整数反转: https://leetcode.cn/problems/reverse-integer/
+int reverse(int x) {
+    if (x == INT_MIN) return 0;
+    if (x < 0) return -reverse(-x);
+
+    int res = 0;
+    while (x) {
+        int dig = x % 10;
+        if (res > INT_MAX / 10 || (res == INT_MAX / 10 && dig >= INT_MAX % 10)) { // 主干编程法之外的部分，一点也不突兀。
+            return 0;
+        }
+        res = res * 10 + dig;
+        x /= 10;
+    }
+    return res;
+}
+
+// 溢出判断：INT_MAX判断法。
+//
+// 正负数问题，没有办法全部转化为正数，只能通过flag，内部溢出判断复杂了些。
+//
+// 主干编程法：溢出逻辑最后再写，优先主干编程，那么逻辑非常清晰了。
+//
+// 如何判断溢出？正常思路是正负数分类讨论的，但这里做了简化，一旦超过INT_MAX，那么要么就是INT_MAX，要么就是INT_MIN。一定是溢出状态，所以不需要分类讨论了。
+// 结论：既然正负号其实不需要分类讨论的，那么上一题（7）是否可以不再将负数转化为正数再解决？ 不可以。负数不能参与取模运算，结论是未定义的。
+//
+// 8. 字符串转换整数 (atoi) https://leetcode.cn/problems/string-to-integer-atoi/
+int myAtoi(string s) {
+    if (s.size() == 0) {
+        return 0;
+    }
+
+    int i = 0;
+    while (i < s.size() && s[i] == ' ') i++;
+
+    int flag = 1;
+    if (i < s.size() && (s[i] == '-' || s[i] == '+')) {
+        flag = s[i] == '+' ? 1 : -1;
+        i++;
+    }
+
+    int res = 0;
+    while (i < s.size() && isdigit(s[i])) {
+        int dig = s[i] - '0';
+        if (res > INT_MAX / 10 || (res == INT_MAX / 10 && dig > INT_MAX % 10)) { // 不需要分类讨论正负数了，只要超过INT_MAX就一定是溢出状态了。
+            return flag > 0 ? INT_MAX : INT_MIN;
+        }
+        res = res * 10 + dig;
+        i++;
+    }
+    return res * flag;
+}

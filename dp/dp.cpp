@@ -15,6 +15,19 @@
 // 3. 初始一行和一列是需要特殊考虑的，可以先赋值好；
 // 4. 赋值dp的过程中，还是遍历原数组的方式构造for循环即可，dp使用dp[i + 1][j + 1]，是可以保证不越界的。
 //
+// dp大小：size+1：
+// 1. 因为dp代表的是元素个数。可能有0个，也可能有size个；
+// 2. 一旦代表个数，下边遍历p和s的i和j转化到dp的索引，就都需要+1。---》所以这里访问p、s和访问dp是不一样的。
+//
+// dp的逻辑1：考虑当前元素是否为*，不要考虑下个元素是否为*。（后者虽然也能写出代码，但是很绕）
+//
+// dp的逻辑2：对*如何处理，要么匹配0个元素，要么匹配1个元素。通过0和1的组合，即可涵盖所有个数。
+// 1. 匹配0个元素，说明a*好像没有出现过一样，所以与dp[i][j-1]有关；
+// 2. 匹配1个元素，说明a*之前已经匹配了x个了，现在还需要匹配一个，所以与dp[i + 1][j - 1]有关。（TODO）
+//
+// 二重循环，谁在前边？
+// 为啥非要特殊赋值第一维？
+//
 // 10. 正则表达式匹配 https://leetcode.cn/problems/regular-expression-matching/
 bool isMatch(string s, string p) {
 	if (s.size() > 0 && p.size() == 0) {
@@ -23,11 +36,11 @@ bool isMatch(string s, string p) {
 
 	vector<vector<bool>> dp(s.size() + 1, vector<bool>(p.size() + 1));
 	dp[0][0] = true;
-	for (int i = 0; i < p.size(); i++) {
-		if (p[i] == '*' && dp[0][i - 1]) {
-			dp[0][i + 1] = true;
-		} 
-	}
+    for (int i = 0; i < p.size(); i++) {
+        if (p[i] == '*') {
+            dp[0][i + 1] = dp[0][i - 1];
+        }
+    }
 	for (int i = 0; i < s.size(); i++) {
 		for (int j = 0; j < p.size(); j++) {
 			if (p[j] == '*') {

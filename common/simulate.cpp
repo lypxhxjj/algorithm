@@ -1,9 +1,11 @@
 // 模拟题目描述来得到最解，不去找什么复杂规律
 
-// 奇怪的方式访问数组。用到的小技巧：
-// 1. 辅助数组；
-// 2. 方向变量；
-// 3. 主干编程法；
+// 模拟题：就真的按题目要求的进行遍历。
+//
+// 模拟题的技巧：
+// 1. 定义一个方向的flag，根据这个flag决定向上还是向下走；
+// 2. 定义一个辅助二维数组，将奇怪的遍历保存到对应数组中去；
+// 3. 主干编程法。主干就是为二维数组赋值。之后就是如何维护j的合法性。
 //
 // 6. Z 字形变换 https://leetcode.cn/problems/zigzag-conversion/
 string join(vector<string>& arr) {
@@ -14,7 +16,7 @@ string join(vector<string>& arr) {
     return res;
 }
 string convert(string s, int numRows) {
-    if (s.size() < 2 || numRows == 1) return s;
+    if (s.size() < 2 || numRows == 1) return s; // 不支持 numRows == 1的情况的。
         
     vector<string> tmpArr(numRows); // 辅助数组和方向，能想到使用这两个变量很关键。
     int downFlag = true;

@@ -40,15 +40,60 @@ int removeDuplicates(vector<int>& nums) {
 // 思路：少的那个是i不变，多的那个j每次在循环内部多做一些事情。
 //
 // 1556. 千位分隔数 https://leetcode.cn/problems/thousand-separator/
-    string thousandSeparator(int n) {
-        string str = to_string(n);
-        string res;
-        res.resize(str.size() + (str.size() - 1) / 3);
-        for (int i = str.size() - 1, j = res.size() - 1, k = 1; i >= 0; i--, j--, k++) {
-            res[j] = str[i];
-            if (k % 3 == 0 && i != 0) {
-                res[--j] = '.';
-            }
+string thousandSeparator(int n) {
+    string str = to_string(n);
+    string res;
+    res.resize(str.size() + (str.size() - 1) / 3);
+    for (int i = str.size() - 1, j = res.size() - 1, k = 1; i >= 0; i--, j--, k++) {
+        res[j] = str[i];
+        if (k % 3 == 0 && i != 0) {
+            res[--j] = '.';
         }
-        return res;
     }
+    return res;
+}
+
+// 双指针问题：如何维护一个合法的区间
+//
+// 双指针的主干编程法：for + res更新 -> 维护hash和左指针正确性。
+//
+// 双指针的本质：通过一个辅助hashmap，快速移动左指针。右指针是普通的i。
+//
+// 3. 无重复字符的最长子串 https://leetcode.cn/problems/longest-substring-without-repeating-characters/
+int lengthOfLongestSubstring(string s) {
+    unordered_map<char, int> hash;
+
+    int res = 0;
+    for (int i = 0, j = 0; i < s.size(); i++) {
+        if (hash.find(s[i]) != hash.end() && hash[s[i]] >= j) {
+            j = hash[s[i]] + 1; // 维护左指针的正确性。
+        }
+        hash[s[i]] = i; // 维护hash的正确性；
+        res = max(res, i - j + 1); // 每次用双指针计算结果。
+    }
+    return res;
+}
+
+// 双指针问题：如何维护一个合法的区间
+//
+// 双指针的主干编程法：for + res更新 -> 维护set和左指针的正确性；
+// 为何可以使用主干编程法？循环最后，一定存在一个稳定的区间。
+//
+// 双指针的本质：通过一个set维护双指针内的元素，通过set来保证双指针内数据的正确性。
+//
+// ps. 以上两种解法，一样的行数，代码很像，但完全不一样的理解。
+// 
+// 3. 无重复字符的最长子串 https://leetcode.cn/problems/longest-substring-without-repeating-characters/
+int lengthOfLongestSubstring(string s) {
+    unordered_set<char> set;
+
+    int res = 0;
+    for (int i = 0, j = 0; i < s.size(); i++) {
+        while (set.find(s[i]) != set.end()) {
+            set.erase(s[j++]);  // 维护j。
+        }
+        set.insert(s[i]); // 维护set。
+        res = max(res, i - j + 1); // 主干编程，因为此时达到的窗口的稳定状态。
+    }
+    return res;
+}
