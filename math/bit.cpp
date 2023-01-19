@@ -23,7 +23,10 @@ int getXORSum(vector<int>& arr1, vector<int>& arr2) {
 
 // 如何对一个数字后几个bit进行异或：先与再异或
 //
-// 注意，此题要的是，让xor最大的那个k，所以一定比kxor小的。
+// 本题思路：
+// 1. 可用异或性质：a ^ b == c 可推导出 a ^ c == b，而最大值是全1，所以可以反向异或。
+// 2. 反向异或之前需要先截断；
+// 3. 题目的描述是从后向头计算，这里使用了从头向后计算；有点绕，貌似不如直接两次循环呀。
 //
 // 1829. 每个查询的最大异或值 https://leetcode.cn/problems/maximum-xor-for-each-query/
 vector<int> getMaximumXor(vector<int>& nums, int maximumBit) {
@@ -42,6 +45,10 @@ vector<int> getMaximumXor(vector<int>& nums, int maximumBit) {
 
 // 位运算问题：有些问题明显只是bit级别的修改，这个时候只按位运算去考虑问题就是最好的了。
 //
+// 本题思路：
+// 1. 第一个操作产生一个1：所以需要计算所有1的数量；
+// 2. 第二个操作产生0，那么找最靠左的1就可以知道需要执行多少次了。
+//
 // 1558. 得到目标数组的最少函数调用次数 https://leetcode.cn/problems/minimum-numbers-of-function-calls-to-make-target-array/
 int oneNum(int n) {
     int res = 0;
@@ -51,17 +58,17 @@ int oneNum(int n) {
     }
     return res;
 }
+
+// 得到最高位后边有多少个0，比如1001，有3个。注意不支持负数。
 int mostLeftShift(int n) {
-    if (n == 0) return 0;
     int res = 0;
-    for (int i = 0; i < 32; i++) { // 位运算一言不合就32次循环走起。
+    while (n > 1) { // n>1统计后边有多少0；n：包括最高位有多少bit。
         n >>= 1;
-        if (n == 0) {
-            return i;
-        }
+        res++;
     }
-    return -1;
+    return res;
 }
+
 int minOperations(vector<int>& nums) {
     int leftShiftAll = 0;
     int res = 0;
@@ -71,3 +78,35 @@ int minOperations(vector<int>& nums) {
     }
     return res + leftShiftAll;
 }
+
+// 位运算：如何使用位运算解决问题的经典方法
+//
+// 两个关键点：
+// 1. 定义int作为bitmap;
+// 2. 用到的bit不多的话，使用1,2,4,8数字去或。
+//
+// 2299. 强密码检验器 II https://leetcode.cn/problems/strong-password-checker-ii/
+class Solution {
+public:
+    bool strongPasswordCheckerII(string password) {
+        if (password.size() < 8) return false;
+
+        int bitInfo = 0;
+        for (int i = 0; i < password.size(); i++) {
+            char ch = password[i];
+            if (i > 0 && password[i] == password[i - 1]) {
+                return false;
+            }
+            if (ch >= 'a' && ch <= 'z') {
+                bitInfo |= 1;
+            } else if (ch >= 'A' && ch <= 'Z') {
+                bitInfo |= 2;
+            } else if (ch >= '0' && ch <= '9') {
+                bitInfo |= 4;
+            } else if (string("!@#$%^&*()-+").find(ch) != string::npos) {
+                bitInfo |= 8;
+            }
+        }
+        return bitInfo == 15;
+    }
+};

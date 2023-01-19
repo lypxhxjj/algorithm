@@ -79,3 +79,36 @@ int findLatestStep(vector<int>& arr, int m) {
     }
     return step;
 }
+
+// hash表示线段的左右边界
+//
+// 至少3个数，如何处理？当需要新建一个序列时，一次找够三个数，而前边还有没有两个数，需要一个hashmap来统计；
+//
+// 连续子序列问题，可以使用hash表，但是这里的tailMap，只需要保存线段的右端，为了满足条件，tailMap的含义是右端点是谁的个数。
+//
+// 659. 分割数组为连续子序列 https://leetcode.cn/problems/split-array-into-consecutive-subsequences/
+bool isPossible(vector<int>& nums) {
+    unordered_map<int, int> cntMap;
+    unordered_map<int, int> tailMap;
+
+    for (int num : nums) {
+        cntMap[num]++;
+    }
+    for (int i = 0; i < nums.size(); i++) {
+        if (cntMap[nums[i]] == 0) {
+            continue;
+        } else if (tailMap[nums[i]-1] > 0) {
+            tailMap[nums[i]-1]--;
+            tailMap[nums[i]]++;
+            cntMap[nums[i]]--;
+        } else if (cntMap[nums[i] + 1] > 0 && cntMap[nums[i] + 2] > 0) {
+            tailMap[nums[i] + 2]++;
+            cntMap[nums[i]]--;
+            cntMap[nums[i] + 1]--;
+            cntMap[nums[i] + 2]--;
+        } else {
+            return false;
+        }
+    }
+    return true;
+}

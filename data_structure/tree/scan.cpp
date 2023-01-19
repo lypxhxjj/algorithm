@@ -81,3 +81,32 @@ vector<int> inorderTraversal(TreeNode* root) {
     }
     return res;
 }
+
+// 层序遍历：最大宽度问题
+//
+// 本题难点在于如何处理空节点，最大的技巧，我们没有使用节点的值，而是自己定义了编号，使用自己定义的编号计算最大宽度。
+//
+// 2的幂次增长很快，即使ull，也只能处理大约64深度的树，如何处理溢出问题呢？
+// 解决：使用unsigned忽略溢出问题。在某一层，一旦最左边的节点相对父节点溢出了，那么这一层右边的节点一定也已经溢出。而这一层的节点数不可能超过2的31次幂，所以完全可以直接计算。
+// 结论：**根节点从1开始**，溢出点一定在最左边，因为满二叉树每一层最右边的节点是全1的，每次都从最左边开始多一个bit。
+//
+// 662. 二叉树最大宽度 https://leetcode.cn/problems/maximum-width-of-binary-tree/
+void preorder(TreeNode* root, int level, unsigned val, vector<unsigned>& minVal, int& res) {
+    if (!root) return;
+
+    if (level == minVal.size()) { // 层序遍历需要使用level，minVal保存每一层的最小值。
+        minVal.push_back(val);
+    } else {
+        res = max(res, int(val - minVal[level] + 1));
+    }
+    preorder(root->left, level + 1, val * 2 , minVal, res);
+    preorder(root->right, level + 1, val * 2 + 1, minVal, res);
+}
+public:
+    int widthOfBinaryTree(TreeNode* root) {
+        if (!root) return 0;
+        vector<unsigned int> minVal;
+        int res = 1;
+        preorder(root, 0, 1, minVal, res);
+        return res;
+    }

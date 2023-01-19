@@ -100,3 +100,34 @@ int sumBase(int n, int k) {
     }
     return res;
 }
+
+// 数学的小问题
+// 
+// 条件如下：nums[i] + rev(nums[j]) == nums[j] + rev(nums[i])
+// 转化为：num[i] - rev(nums[i]) == nums[j] - rev(nums[j])
+// 这俩表达式的联系与区别在于：都是两个元素的关系，但是后者更清晰，因为左右两边的式子可缓存。（hash）
+//
+// 求个数的两个方法，个数是指，i和j相关，出现的次数分别是m和n
+// 1. 那么总数是m * n / 2。记得除以2；
+// 2. 另外的办法：求m和n的过程中就算好了，一边求一边算，如下代码，可以省去遍历了。
+//
+// 1814. 统计一个数组中好对子的数目 https://leetcode.cn/problems/count-nice-pairs-in-an-array/
+int reverse(int n) {
+    int res = 0;
+    while (n) {
+        res = res * 10 + n % 10;
+        n /= 10;
+    }
+    return res;
+}
+int countNicePairs(vector<int>& nums) {
+    unordered_map<int, int> deltaMap;
+
+    int res = 0;
+    for (int num : nums) {
+        int delta = num - reverse(num);
+        res += deltaMap[delta]++;
+        res %= 1000000007;
+    }
+    return res;
+}

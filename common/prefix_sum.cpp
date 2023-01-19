@@ -2,6 +2,7 @@
 
 // 二维矩阵的前缀和
 // 计算过程非常优雅，多出一行一列，可以在计算前缀和和使用前缀和的时候不需要考虑各种边界情况。
+// 多出这一行一列的作用：计算任意矩阵的和，可以直接减法，不需要判断边界
 vector<vector<int>> prefixSum(vector<vector<int>>& matrix) {
     vector<vector<int>> matPrefixSum(matrix.size() + 1, vector<int>(matrix[0].size() + 1));
     for (int i = 0; i < matrix.size(); i++) {

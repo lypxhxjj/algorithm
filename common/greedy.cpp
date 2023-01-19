@@ -79,3 +79,59 @@ int maxCoins(vector<int>& piles) {
     return res;
 }
 
+// 贪心
+//
+// 如果希望后续依然能满足，那么肯定希望当前这俩数尽量小；如果希望前边继续符合条件，那么希望当前这俩数不那么小。
+// 所以，优先变到可能的最小。
+//
+// 665. 非递减数列 https://leetcode.cn/problems/non-decreasing-array/
+bool checkPossibility(vector<int>& nums) {
+    bool isFind = false;
+    for (int i = 1; i < nums.size(); i++) {
+        if (nums[i] >= nums[i - 1]) {
+            continue;
+        }
+        if (isFind) {
+            return false;
+        }
+        isFind = true;
+        if (i == 1) {
+            nums[i - 1] = INT_MIN;
+        } else if (nums[i] >= nums[i - 2]) { // i位置只能变大，所有优先将i-1位置变小。
+            nums[i - 1] = nums[i - 2];
+        else {
+            nums[i] = nums[i - 1]; // 不得已再变大i位置，但也只能变到和i-1一样大。
+        }
+    }
+    return true;
+}
+
+// 不知道能不能说服未来的我
+//
+// 核心思想：贪心。每个arr2中的元素，从arr1中找第一个比它大的。如何证明？
+// 因为要两个元素配对，从arr2角度来说，肯定希望匹配到的arr1元素越小越好，因为可以让比我大的元素也有所匹配；
+// 从arr1角度来说，肯定希望匹配到的arr2越大越好，因为可以让比我小的元素也有所匹配。
+//
+// 贪心会带来更坏的结果吗？比如两个比较接近的数配对了，会造成啥？会造成比arr2[i]小的数失去机会，但是机会其实让给了arr2[i]，并没有造成损失。
+// 
+// 870. 优势洗牌 https://leetcode.cn/problems/advantage-shuffle/
+vector<int> advantageCount(vector<int>& nums1, vector<int>& nums2) {
+    vector<int> res(nums1.size());
+
+    map<int, int> val1CntMap;
+    for (int num : nums1) {
+        val1CntMap[num]++;
+    }
+    sort(nums1.begin(), nums1.end());
+    for (int i = 0; i < nums2.size(); i++) {
+        auto it = val1CntMap.upper_bound(nums2[i]);
+        if (it == val1CntMap.end()) {
+            it = val1CntMap.begin();
+        }
+        res[i] = it->first;
+        if (--it->second == 0) {
+            val1CntMap.erase(it);
+        }
+    }
+    return res;
+}
