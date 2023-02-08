@@ -1,8 +1,44 @@
 // split 方法非常简单。而好多问题可以在split的时候顺带解决掉，堪称一个小杀器。
 // split 方法一个强大的点：一次遍历就将问题解决掉了。
 
-// 子串问题：不同子串不重叠时
-// 主要的技巧：当 i 也需要寻找时，寻找完记得判断下是否没找到，没找到的话，是不允许进入后边的逻辑的。
+// split变形1：split考虑分隔符在边界：在边界时产生空字符串
+//
+// 要点：需要考虑在前和在后，我们默认的逻辑是完全不考虑的，所以分别考虑即可。
+//
+// 本题主干：split + count。
+//
+// 2315. 统计星号 https://leetcode.cn/problems/count-asterisks/
+class Solution {
+    vector<string> split(const string& s) {
+        if (s.size() == 0) return {};
+
+        int i = 0;
+        vector<string> res;
+        while (i < s.size()) {
+            int j = i;                          // 要点1：j = i
+            while (j < s.size() && s[j] != '|') j++;
+            res.push_back(s.substr(i, j - i));
+
+            i = j + 1;
+        }
+        if (s.back() == '|') res.push_back(""); // 要点2：单独考虑最后一个字符。
+        return res;
+    }
+public:
+    int countAsterisks(string s) {
+        vector<string> parts = split(s);
+
+        int res = 0;
+        for (int i = 0; i < parts.size(); i+= 2) {
+            res += count(parts[i].begin(), parts[i].end(), '*');
+        }
+        return res;
+    }
+};
+
+// split变形2：i也需要寻找时，记得判断i是否到头，即i的寻找会导致4行代码出来。
+//
+// split应用：不重叠子串问题。
 //
 // ps. 本题也可以使用滑动窗口法，但是其实每次j都是移动到i的位置，所以不纯粹；
 // ps. 本题也可以使用动态规划方法，但是其实就比较绕，因为当前元素与前一元素有关，是有前提得，前提是，前边是以a开头的子串(currRes > 0)且满足顺序(==/>)。
@@ -38,6 +74,8 @@ int longestBeautifulSubstring(string word) {
     return res;
 }
 
+// split应用2：分阶段，分层处理
+//
 // 分阶段、分层处理：一个问题，其实自己拆分之后，是可以表示为几个不相关的步骤，分别处理即可
 // 每一层一个split。
 //
@@ -64,35 +102,54 @@ string countAndSay(int n) {
     return res;
 }
 
-// trim + split，再次引入一个trim算法：trim算法也是标准库中没有，需要自己实现的那种。
+// split应用：分隔符可以是多个空格
 //
-// trim：用于格式化字符串：去掉前后缀空格，去掉中间多出来的空格。
-// 基本思路：i只用于寻找非空格元素，然后赋值给j，只不过赋值之前需要判断是否需要额外插入一个空格。
+// 最初的实现是，先trim -> split -> join；
+// 可被优化为：split -> join。
 //
 // 151. 反转字符串中的单词 https://leetcode.cn/problems/reverse-words-in-a-string/
-void trim(string& s) { 
-    int j= 0;
-    for (int i = 0; i < s.size(); i++) { 
-        if (s[i] == ' ') continue;
-        if (j > 0 && s[i - 1] == ' ') {
-            s[j++] = ' ';
+class Solution {
+    vector<string> split(const string& s) {
+        if (s.size() == 0) {
+            return {};
         }
-        s[j++] = s[i];
+
+        vector<string> res;
+        int i = 0;
+        while (i < s.size()) {
+            while (i < s.size() && s[i] == ' ') i++;
+            if (i == s.size()) break;
+
+            int j = i + 1;
+            while (j < s.size() && s[j] != ' ') j++;
+
+            res.push_back(s.substr(i, j - i));
+            i = j + 1;
+        }
+        return res;
     }
-    s.resize(j);
-}
-string reverseWords(string s) {
-    trim(s);
-    reverse(s.begin(), s.end());
-    int i = 0;
-    while (i < s.size()) { // 简单split了。
-        int j = i + 1;
-        while (j < s.size() && s[j] != ' ') j++;
-        reverse(s.begin() + i, s.begin() + j);
-        i = j + 1;
+
+    string join(vector<string>& parts, char ch) {
+        string res;
+        if (parts.size() == 0) {
+            return res;
+        }
+        for (const auto& part : parts) {
+            res += part + " ";
+        }
+        res.resize(res.size() - 1);
+        return res;
     }
-    return s;
-}
+public:
+    string reverseWords(string s) {
+        reverse(s.begin(), s.end());
+        auto parts = split(s);
+        for (string& part : parts) {
+            reverse(part.begin(), part.end());
+        }
+        return join(parts, ' ');
+    }
+};
 
 // 简单split题目
 // 1. 1759. 统计同构子字符串的数目 https://leetcode.cn/problems/count-number-of-homogenous-substrings/

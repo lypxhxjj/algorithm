@@ -95,3 +95,28 @@ bool containsPattern(vector<int>& arr, int m, int k) {
     }
     return false;
 }
+
+// rotate问题基本思路：
+// 1. 拼接，将一个数组拼接成俩个；
+// 2. 滑动窗口，每次旋转，相当于右移一个窗口；
+// 3. 甚至，可以将前缀和逻辑加上。
+//
+// 虽然下题不是那么写的，但是思路很好。
+// 
+// 396. 旋转函数 https://leetcode.cn/problems/rotate-function/
+class Solution {
+public:
+    int maxRotateFunction(vector<int>& nums) {
+        int sum = 0, f = 0;
+        for (int i = 0; i < nums.size(); i++) {
+            sum += nums[i];
+            f += i * nums[i];
+        }
+        int res = f;
+        for (int i = 1; i < nums.size(); i++) {
+            f = f - sum + nums.size() * nums[i-1]; // f(n) = f(n - 1) - sum + n * nums[i -1]
+            res = max(res, f);
+        }
+        return res;
+    }
+};

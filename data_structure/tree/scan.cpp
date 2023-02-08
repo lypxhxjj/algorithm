@@ -110,3 +110,43 @@ public:
         preorder(root, 0, 1, minVal, res);
         return res;
     }
+
+// 遍历剪枝问题
+//
+// 关键点1：一旦找到这个点，那么立刻马上开始return，不再做多余的函数调用。需要在两个位置加if判断：
+// 1. 最开头，和!root一起；
+// 2. 中序遍历位置。
+// 第二点理解：一旦找到，中序遍历位置可以保证不再进入right递归；left后面加了if，right后面不需要加，是因为right本身就要结束了。
+//
+// 关键点2：如何实现频繁查找第k小呢？
+// 可以在每个节点记录下左右子树节点个数。(时间复杂度降低为o(logn))
+//
+// 关键点3：如果需要频繁修改树 && 需要频繁查找第k小
+// 可以使用AVL树，不断旋转平衡，让树的高度维持在o(logn)上。
+//
+// 快速理解：普通中序遍历找一个数，如何高效剪枝呢？
+//
+// 230. 二叉搜索树中第K小的元素 https://leetcode.cn/problems/kth-smallest-element-in-a-bst/
+class Solution {
+    int res; // 多用成员变量，可以使得函数参数简化，反正原理都是一样的，就不弄虚的了。
+public:
+    int kthSmallest(TreeNode* root, int k) {
+        return helper(root, k);
+    }
+    int helper(TreeNode* root, int& k) { // k需要传引用哈。所以k也可以放到成员变量中去。
+        cout << k << endl;
+        if (!root || k < 0) {
+            return res;
+        }
+        helper(root->left, k);
+        if (--k == 0) {
+            res = root->val;
+        } 
+        if (k <= 0) {
+            cout << "找到啦" << endl;  // 两个测试 cout，一旦返回，就不会调用到第一行的cout。
+            return res; 
+        }
+        helper(root->right, k);
+        return res;
+    }
+};

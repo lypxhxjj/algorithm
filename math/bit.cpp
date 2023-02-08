@@ -79,6 +79,38 @@ int minOperations(vector<int>& nums) {
     return res + leftShiftAll;
 }
 
+// UTF8编码校验
+//
+// 如何根据一个字节的前几个bit来获取大小信息。移位运算和二进制法的使用值得借鉴。
+//
+// 393. UTF-8 编码验证 https://leetcode.cn/problems/utf-8-validation/
+class Solution {
+    int size(int byte) {
+        if ((byte >> 7) == 0) return 1;
+        if ((byte >> 5) == 0b110) return 2;
+        if ((byte >> 4) == 0b1110) return 3;
+        if ((byte >> 3) == 0b11110) return 4;
+        return 0;
+    }
+public:
+    bool validUtf8(vector<int>& data) {
+        if (data.size() == 0) return true;
+        int i = 0;
+        while (i < data.size()) {
+
+            int sz = size(data[i]);
+            if (sz == 0 || i + sz > data.size()) return false; // split 的思路
+
+            for (int j = 1; j < sz; j++) {
+                if ((data[i + j] >> 6) != 0b10) return false;
+            }
+            
+            i += sz;
+        }
+        return true;
+    }
+};
+
 // 位运算：如何使用位运算解决问题的经典方法
 //
 // 两个关键点：

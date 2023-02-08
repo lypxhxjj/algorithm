@@ -1,34 +1,3 @@
-// hashmap与滑动窗口结合，并使用diff的场景。
-//
-// 即diff表示hashmap中预定义元素个数，后续只有和预定义的字符种类和个数都完全相同的时候，diff才会变为0。
-//
-// 438. 找到字符串中所有字母异位词: https://leetcode.cn/problems/find-all-anagrams-in-a-string/
-vector<int> findAnagrams(string s, string p) {
-    if (s.size() < p.size() || p.size() == 0) return {};
-    
-    unordered_map<char, int> cntMap; // 1. hashmap使用；
-    for (char ch : p) {
-        cntMap[ch]++;
-    }
-    
-    int diff = cntMap.size(); // 2.diff的使用。
-    for (int i = 0; i < p.size() - 1; i++) { // 可以将这部分合并到下边，其实就是j++变为不确定加加。但是多出来的j++看着好不舒服，所以暂时先不合并了。
-        cntMap[s[i]]--;
-        if (cntMap[s[i]] == 0) diff--; // 这种hashmap的加加减减和使用是可以合并到一个语句中的。
-    }
-
-    vector<int> res;
-    for (int i = p.size() - 1, j = 0; i < s.size(); i++, j++) {
-        cntMap[s[i]]--;
-        if (cntMap[s[i]] == 0) diff--;
-        if (0 == diff) {
-            res.push_back(j);
-        }
-        cntMap[s[j]]++;
-        if (cntMap[s[j]] == 1) diff++;
-    }
-    return res;
-}
 
 // hash表示线段的左右边界
 //
@@ -40,6 +9,8 @@ vector<int> findAnagrams(string s, string p) {
 // 2. 由于存在num - 1, num + 1这种，两边预留一个位置，0已提前预留，即只需最后预留一个位置;
 // 3. 数据范围是1-maxLen，所以hash大小最小maxLen + 1个。
 // 综合以上，hash需要 maxLen + 2 才行。
+//
+// 约束条件：这里需要整数各不相同。
 // 
 // 1562. 查找大小为 M 的最新分组 https://leetcode.cn/problems/find-latest-group-of-size-m/
 int findLatestStep(vector<int>& arr, int m) {
@@ -50,14 +21,14 @@ int findLatestStep(vector<int>& arr, int m) {
         int num = arr[i];
         hash[num] = num; // 自成一个新的段；
         int len = 1;
-        if (hash.find(num - 1) != hash.end()) { // 和左边合并
+        if (hash.find(num - 1) != hash.end()) {
             int left = hash[num - 1];
             int right = num - 1;
             int newRight = num; // 用之前，先定义出来，后续使用就很方便了。
 
             mCnt -= right - left + 1 == m ? 1 : 0;
             hash[left] = newRight;
-            hash[newRight] = left;
+            hash[newRight] = left; // WARN：一旦定义好，那么中间的元素不再使用才行，不然会污染边界元素。
             len = newRight - left + 1;
         }
         if (hash.find(num + 1) != hash.end()) {
@@ -80,7 +51,7 @@ int findLatestStep(vector<int>& arr, int m) {
     return step;
 }
 
-// hash表示线段的左右边界
+// hash表示线段的左右边界（线段的含义：连续整数）
 //
 // 至少3个数，如何处理？当需要新建一个序列时，一次找够三个数，而前边还有没有两个数，需要一个hashmap来统计；
 //
@@ -89,19 +60,19 @@ int findLatestStep(vector<int>& arr, int m) {
 // 659. 分割数组为连续子序列 https://leetcode.cn/problems/split-array-into-consecutive-subsequences/
 bool isPossible(vector<int>& nums) {
     unordered_map<int, int> cntMap;
-    unordered_map<int, int> tailMap;
+    unordered_map<int, int> tailMap; // 线段右端点的个数。
 
     for (int num : nums) {
         cntMap[num]++;
     }
     for (int i = 0; i < nums.size(); i++) {
-        if (cntMap[nums[i]] == 0) {
+        if (cntMap[nums[i]] == 0) { // 这个元素已经被访问过了。
             continue;
-        } else if (tailMap[nums[i]-1] > 0) {
+        } else if (tailMap[nums[i]-1] > 0) { // 存在前边的元素，和前边元素凑成一组。
             tailMap[nums[i]-1]--;
             tailMap[nums[i]]++;
             cntMap[nums[i]]--;
-        } else if (cntMap[nums[i] + 1] > 0 && cntMap[nums[i] + 2] > 0) {
+        } else if (cntMap[nums[i] + 1] > 0 && cntMap[nums[i] + 2] > 0) { // 没有前边元素，自成一个新段。WARN：顺序不关心的话，需要排序（比如第一个元素就拿到了最大的）
             tailMap[nums[i] + 2]++;
             cntMap[nums[i]]--;
             cntMap[nums[i] + 1]--;
@@ -112,3 +83,32 @@ bool isPossible(vector<int>& nums) {
     }
     return true;
 }
+
+// 字符相关的hash：如何避免字符串hash的乱七八糟
+//
+// 乱七八糟体现在，为了性能，一般不使用unordered_map，而是使用数组。
+// 而key是字符的时候，字符串转索引需要一步，最后使用的时候也还需要相同的步骤，显得很乱。
+// 方案：申请hash的时候申请到'z' + 1个。
+// 
+// 2325. 解密消息 https://leetcode.cn/problems/decode-the-message/
+class Solution {
+public:
+    string decodeMessage(string key, string message) {
+        char ch['z' + 1] = {0};                 // 申请'z' + 1个。
+        char begin = 'a';
+        for (int i = 0; i < key.size(); i++) {
+            if (key[i] >= 'a' && key[i] <= 'z') { // 空格的检查，其实也可以通过ch[' '] = ' '处理，就不需要这行代码了。
+                if (ch[key[i]] > 0) {
+                    continue;
+                }
+                ch[key[i]] = begin++;
+            }
+        }
+        for (int i = 0; i < message.size(); i++) {
+            if (message[i] >= 'a' && message[i] <= 'z') {
+                message[i] = ch[message[i]];
+            }
+        }
+        return message;
+    }
+};

@@ -131,3 +131,26 @@ int countNicePairs(vector<int>& nums) {
     }
     return res;
 }
+
+// 数学法的一个方法：F(n) - F(n - 1) ，甚至可使用F(1) - F(0)
+//
+// 场景：给出的表达式一般是个复杂的求和的公式，通过相减可优化掉求和公式。
+// 比如：F(k) = 0 * arrk[0] + 1 * arrk[1] + ... + (n - 1) * arrk[n - 1]
+//
+// 396. 旋转函数 https://leetcode.cn/problems/rotate-function/
+class Solution {
+public:
+    int maxRotateFunction(vector<int>& nums) {
+        int sum = 0, f = 0;
+        for (int i = 0; i < nums.size(); i++) {
+            sum += nums[i];
+            f += i * nums[i];
+        }
+        int res = f;
+        for (int i = 1; i < nums.size(); i++) {
+            f = f - sum + nums.size() * nums[i-1]; // f(n) = f(n - 1) - sum + n * nums[i -1]
+            res = max(res, f);
+        }
+        return res;
+    }
+};

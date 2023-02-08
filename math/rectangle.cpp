@@ -1,16 +1,52 @@
+// 技巧1：正方形的对角线如何判断？（竟然是size-1这么不优雅的方式，特例法）
+// 1. i == j || i + j == grid.size() - 1
+//
+// 技巧2：「两个条件都为真」「两个条件都为假」
+// 1. if ((grid[i][j] == 0) == (i == j || i + j == n - 1))
+//
+// 技巧3：之前不想嵌套，弄成了平铺，导致了出错。经验教训就是：
+// 1. 如果平铺而不是使用嵌套，需找到完备事件组。
+//
+// 2319. 判断矩阵是否是一个 X 矩阵 https://leetcode.cn/problems/check-if-matrix-is-x-matrix/
+class Solution {
+public:
+    bool checkXMatrix(vector<vector<int>>& grid) {
+        for (int i = 0; i < grid.size(); i++) {
+            for (int j = 0; j < grid[0].size(); j++) {
+                if (i == j || i + j == grid.size() - 1) {
+                    if (grid[i][j] == 0) return false;
+                } else if (grid[i][j] != 0) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+};
+
 // 两个矩形的重叠长和宽
 // 两个矩形最小的上边界，减去最大的下边界。上下边界说的是y相关，左右边界才是x相关。
 //
+// 这里有几个理解：
+// 1. 坐标是两个角落的坐标，既然是坐标，那么A和B分别就是横纵坐标。
+// 2. 矩形相交可以对比线段相交去理解。横线之间相交，肯定用横坐标去计算重叠区间；竖线之间相交，肯定用纵坐标去计算重叠区间。
+// 3. 那两个线段如何找重叠区域呢：两个右端点的最小值，两个左端点的最大值。
+//
 // 223. 矩形面积: https://leetcode.cn/problems/rectangle-area/
-int computeArea(int ax1, int ay1, int ax2, int ay2, int bx1, int by1, int bx2, int by2) {
-    int cx = max(0, min(ax2, bx2) - max(ax1, bx1));
-    int cy = max(0, min(ay2, by2) - max(ay1, by1));
-    return (ax2 - ax1) * (ay2 - ay1) + (bx2 - bx1) * (by2 - by1) - cx * cy;
-}
+class Solution {
+public:
+    int computeArea(int A1, int B1, int C1, int D1, int A2, int B2, int C2, int D2) {
+        int x = max(0, min(C1, C2) - max(A1, A2));
+        int y = max(0,  min(D1, D2) - max(B1, B2));
+        return (C1 - A1) * (D1 - B1) + (C2 -A2) * (D2 - B2) - x * y;
+    }
+};
 
 // 9 * 9 矩阵的特点：
 // 1. visited数组写法：bool rows[10][10] = {0}, cols[10][10] = {0}, square[10][10] = {0};
-// 2. square的索引定位（大方块的路径压缩）：index = i / 3 * 3 + j / 3;
+// 2. square的索引定位（大方块的路径压缩）：index = i / 3 * 3 + j / 3; 还算优雅。
+// (1) i / 3 * 3：当前i上边有多少个完整的的方块，乘以3代表每一行有3个完整的方块；
+// (2) j / 3 ：当前j左边有多少个完整的方块。
 //
 // 36. 有效的数独 https://leetcode.cn/problems/valid-sudoku/
 // 37. 解数独 https://leetcode.cn/problems/sudoku-solver/
@@ -22,7 +58,7 @@ bool isValidSudoku(vector<vector<char>>& board) {
                 continue;
             }
             int val = board[i][j] - '0'; // 注意矩阵中给的是字符，不是一两次在这里出错了。
-            if (rows[i][val] || cols[j][val] || square[i/ 3 * 3 + j / 3][val]) {
+            if (rows[i][val] || cols[j][val] || square[i / 3 * 3 + j / 3][val]) {
                 return false;
             }
             rows[i][val] = cols[j][val] = square[i/ 3 * 3 + j / 3][val] = true;

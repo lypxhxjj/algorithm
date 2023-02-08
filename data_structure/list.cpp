@@ -8,6 +8,14 @@ ListNode* findNthNode(ListNode* head, int n) {
     return head;
 }
 
+// 作为对比，定位到第n个索引位置：
+ListNode* findNthNode(ListNode* head, int n) {
+    for (int i = 0; i < n; i++) { // 索引从0开始，那么i也从0开始。
+        head = head->next;
+    }
+    return head;
+}
+
 // 定位到倒数第n个节点（注意，未做n的校验）。代码非常简单直白。非常好记。
 // 推导：倒数第n个点，那么fast肯定在nullptr，slow在倒数第n个节点。既然倒数第n个，所以slow和fast之间[slow, fast]共有n+1个节点（包含nullptr），
 // [slow, nullptr]有n + 1个节点，所以fast也要先走到第n+1个节点位置（即可用如上结论）。
