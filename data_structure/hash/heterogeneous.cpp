@@ -63,3 +63,33 @@ public:
     }
 };
 
+
+// 类似异构数组的问题，参考双指针部分。不完全是异构数组，而是一个比较特殊的约束条件。类似异构数组问题，可以向这个方向思考。
+//
+// 1234. 替换子串得到平衡字符串 https://leetcode.cn/problems/replace-the-substring-for-balanced-string/
+class Solution {
+public:
+    int balancedString(string s) {
+        int expected = s.size() / 4;
+        int hash['Z'] = {0};
+        for (char ch : s) {
+            hash[ch]++;
+        }
+
+        auto check = [&hash, expected]() { // 这个技巧很好。有限个字符很难不枚举，而如果能将枚举限制到lambda中，则代码很漂亮了。
+            return hash['Q'] <= expected && hash['W'] <= expected && hash['E'] <= expected && hash['R'] <= expected;
+        };
+        if (check()) return 0;
+
+        int res = s.size();
+        for (int right = 0, left = 0; right < s.size(); right++) {
+            hash[s[right]]--;
+            while (check()) {
+                res = min(res, right - left + 1);
+                hash[s[left++]]++;
+            }
+        }
+
+        return res;
+    }
+};

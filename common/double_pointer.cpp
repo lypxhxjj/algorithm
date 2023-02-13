@@ -1,4 +1,52 @@
 // 双指针问题，是可以特别神奇的，可以一次遍历就得到结果的那种解法。
+// 1. 双指针的本质？
+// 答：缓存机制。由之前的每次重新计算，变为缓存中间结果。
+//
+// 2. 双指针常见的解题套路：
+// （1）i和j相向。下面的11题；
+// （2）i和j怎么走非常清晰，但是要求j的含义十分明确，比如26/27。一般j比较慢，即i每次加加，j不一定。有时j比较快，即每次i加加，j需要做两件事，参考1556。
+// （3）right和left同向走，right会保证稳定性，left不保证。每次先更新right，并尝试优化left。既然能优化left，那么每次进入优化left逻辑内，窗口是一个稳定状态。每次循环结束，窗口内一定是个不稳定状态。参考1234.
+// （4）right和left同向走，但right的更新会破坏掉稳定性，left不会。所以进入right逻辑之前，先更新left保证right能稳定。所以更新left的时机在right之前。参考3.
+//
+// 3. 双指针常见的辅助数据结构：
+// (1)hash保存个数（1234），保存索引（3）
+
+
+// 双指针。每次更新right，并优化left
+//
+// 双指针的关键点：每次必移动right，如果可优化left，那么就优化left。
+//
+// 本题有个优化：hash使用普通数组。
+//
+// 本题有个关键点：窗口内要满足的条件参考下面的lambda。这个比较难想，可以简单记下来作为经验。
+//
+// 1234. 替换子串得到平衡字符串 https://leetcode.cn/problems/replace-the-substring-for-balanced-string/
+class Solution {
+public:
+    int balancedString(string s) {
+        int expected = s.size() / 4;
+        int hash['Z'] = {0}; // 一个优化。尤其适用于hash使用比较多的情况。
+        for (char ch : s) {
+            hash[ch]++;
+        }
+
+        auto check = [&hash, expected]() { // 这个技巧很好。有限个字符很难不枚举，而如果能将枚举限制到lambda中，则代码很漂亮了。
+            return hash['Q'] <= expected && hash['W'] <= expected && hash['E'] <= expected && hash['R'] <= expected;
+        };
+        if (check()) return 0;
+
+        int res = s.size();
+        for (int right = 0, left = 0; right < s.size(); right++) {
+            hash[s[right]]--;
+            while (check()) {
+                res = min(res, right - left + 1);
+                hash[s[left++]]++;
+            }
+        }
+
+        return res;
+    }
+};
 
 // 双指针，一个从头向后，一个从后向头，每次谁走，谁小谁走，只有移动小的那边才可以达到更大的一个值。
 //
