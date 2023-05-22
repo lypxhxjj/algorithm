@@ -135,3 +135,8 @@ vector<int> advantageCount(vector<int>& nums1, vector<int>& nums2) {
     }
     return res;
 }
+
+
+// 贪心练习题：
+
+// 1090. 受标签影响的最大值 https://leetcode.cn/problems/largest-values-from-labels/
