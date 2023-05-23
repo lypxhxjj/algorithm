@@ -54,7 +54,7 @@ visited数组怎么使用呢？对于每层dfs只遍历一个节点来说：
 
 ```
 class Solution {
-    bool dfs(vector<vector<int>>& mat, int i, vector<bool>& visited, int t, int target, double& res) {
+    bool dfs(vector<vector<int>>& mat, int i, vector<bool>& visited, int t, int target, double& res, double currRate) {
         int childNum = i == 1 ? mat[i].size() : mat[i].size() - 1;
         if ((childNum == 0 || t == 0) && target == i) {
             res = currRate;
