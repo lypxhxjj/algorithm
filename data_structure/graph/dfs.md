@@ -56,14 +56,14 @@ visited数组怎么使用呢？对于每层dfs只遍历一个节点来说：
 class Solution {
     bool dfs(vector<vector<int>>& mat, int i, vector<bool>& visited, int t, int target, double& res, double currRate) {
         int childNum = i == 1 ? mat[i].size() : mat[i].size() - 1;
-        if ((childNum == 0 || t == 0) && target == i) {
+        if ((childNum == 0 || t == 0) && target == i) { // 找到结果。
             res = currRate;
         }
         
-        if (target == i) {
+        if (target == i) { // 全局终止
             return true;
         }
-        if (childNum == 0 || t <= 0) {
+        if (childNum == 0 || t <= 0) { // 子树终止。
             return false;
         }
 
@@ -108,7 +108,7 @@ public:
         int childNum = i == 1 ? mat[i].size() : mat[i].size() - 1; // 这里特殊考虑根节点，根节点没有父节点，少了一个相连的节点。
 ```
 无向树的另外一个特性：一旦一个节点被遍历过，那么就不会再次被遍历到。利用这个性质，我们可以得出：
-1. 遍历到target节点的时候，如果是满足条件的，则直接得到返回值，不需要通过概率加法计算。
+1. 遍历到target节点的时候，如果是满足条件的，则直接得到返回值，不需要考虑其他路径到达当前节点的情况。
 2. 遍历到target节点的时候，无论是否满足条件，都可以直接剪枝了：
 ```
         if (target == i) {
