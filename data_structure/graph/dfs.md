@@ -54,21 +54,28 @@ visited数组怎么使用呢？对于每层dfs只遍历一个节点来说：
 
 ```
 class Solution {
-    void dfs(vector<vector<int>>& mat, int i, vector<bool>& visited, int t, int target, double& res, double currRate) {
+    bool dfs(vector<vector<int>>& mat, int i, vector<bool>& visited, int t, int target, double& res) {
         int childNum = i == 1 ? mat[i].size() : mat[i].size() - 1;
         if ((childNum == 0 || t == 0) && target == i) {
-            res += currRate;
+            res = currRate;
+        }
+        
+        if (target == i) {
+            return true;
         }
         if (childNum == 0 || t <= 0) {
-            return;
+            return false;
         }
 
         visited[i] = true;
         for (int j : mat[i]) {
             if (visited[j]) continue;
-            dfs(mat, j, visited, t - 1, target, res, currRate /childNum);
+            if (dfs(mat, j, visited, t - 1, target, res, currRate /childNum)) {
+                return true;
+            }
         }
         visited[i] = false;
+        return false;
     }
 public:
     double frogPosition(int n, vector<vector<int>>& edges, int t, int target) {
@@ -98,5 +105,14 @@ public:
 
 本题「无向树」条件的用法：区别于无向图，无向树的遍历是从上到下的，每个节点除了与它的孩子相连，只与一个父节点相连，所以可以快速得到接下来还有多少次dfs需要调用，即孩子的个数。
 ```
-        int childNum = i == 1 ? mat[i].size() : mat[i].size() - 1; // 这里特殊考虑根节点，根节点没有父节点。
+        int childNum = i == 1 ? mat[i].size() : mat[i].size() - 1; // 这里特殊考虑根节点，根节点没有父节点，少了一个相连的节点。
 ```
+无向树的另外一个特性：一旦一个节点被遍历过，那么就不会再次被遍历到。利用这个性质，我们可以得出：
+1. 遍历到target节点的时候，如果是满足条件的，则直接得到返回值，不需要通过概率加法计算。
+2. 遍历到target节点的时候，无论是否满足条件，都可以直接剪枝了：
+```
+        if (target == i) {
+            return true;
+        }
+```
+这里引入了返回值剪枝。不使用返回值直接return，只是剪掉了target节点后面的子树；使用返回值剪枝，则减掉了后续需要遍历的所有路径，比如target的兄弟节点。
