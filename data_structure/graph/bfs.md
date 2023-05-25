@@ -27,5 +27,7 @@ for (int i = -1; i <= 1; i++) { // i代表x的偏移
 }
 ```
 
+广度优先搜索 + visited数组的方式的时间复杂度是多少？o(n ^ 2)，因为最差，全部互相相连。
+
 例题：
 1091. 二进制矩阵中的最短路径 https://leetcode.cn/problems/shortest-path-in-binary-matrix/
